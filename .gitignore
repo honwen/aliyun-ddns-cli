@@ -6,6 +6,8 @@
 # Folders
 _obj
 _test
+.vscode/
+release/
 
 # Architecture specific extensions/prefixes
 *.[568vq]
@@ -22,3 +24,8 @@ _testmain.go
 *.exe
 *.test
 *.prof
+*.upx
+
+debug
+aliyun-ddns-cli
+aliddns*
