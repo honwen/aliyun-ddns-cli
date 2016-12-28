@@ -14,10 +14,9 @@ COMMANDS:
    DDNS:
      list         List AliYun's DNS DomainRecords Record
      update       Update AliYun's DNS DomainRecords Record
-     auto-update  Auto-Update AliYun's DNS DomainRecords Record, Get IP using http://ip.cn
+     auto-update  Auto-Update AliYun's DNS DomainRecords Record, Get IP using its getip
    GET-IP:
-     getip       Get IP using http://ip.cn
-     getip-intl  Get IP using http://ipinfo.io
+     getip        Get IP Combine 5 different Web-API
 
 GLOBAL OPTIONS:
    --access-key-id value, --id value          AliYun's Access Key ID

@@ -122,7 +122,7 @@ func main() {
 					}
 				}
 				if target != nil {
-					ipaddr := getIPipcn()
+					ipaddr := c.String("ipaddr")
 					if ipaddr == target.Value {
 						fmt.Println(target.RR+`.`+target.DomainName, ipaddr)
 						return nil
@@ -142,7 +142,7 @@ func main() {
 		{
 			Name:     "auto-update",
 			Category: "DDNS",
-			Usage:    "Auto-Update AliYun's DNS DomainRecords Record, Get IP using http://ip.cn",
+			Usage:    "Auto-Update AliYun's DNS DomainRecords Record, Get IP using its getip",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "domain, d",
@@ -170,7 +170,7 @@ func main() {
 					}
 				}
 				if target != nil {
-					ipaddr := getIPipcn()
+					ipaddr := getIP()
 					if ipaddr == target.Value {
 						fmt.Println(target.RR+`.`+target.DomainName, ipaddr)
 						return nil
@@ -190,20 +190,10 @@ func main() {
 		{
 			Name:     "getip",
 			Category: "GET-IP",
-			Usage:    "Get IP using http://ip.cn",
+			Usage:    "      Get IP Combine 5 different Web-API",
 			Action: func(c *cli.Context) error {
 				// fmt.Println(c.Command.Name, "task: ", c.Command.Usage)
-				fmt.Println(getIPipcn())
-				return nil
-			},
-		},
-		{
-			Name:     "getip-intl",
-			Category: "GET-IP",
-			Usage:    "Get IP using http://ipinfo.io",
-			Action: func(c *cli.Context) error {
-				// fmt.Println(c.Command.Name, "task: ", c.Command.Usage)
-				fmt.Println(getIPipio())
+				fmt.Println(getIP())
 				return nil
 			},
 		},
