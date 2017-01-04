@@ -4,21 +4,36 @@ import (
 	"io/ioutil"
 	"net/http"
 	"regexp"
+	"sync"
 )
 
 const regxIP = `(25[0-5]|2[0-4]\d|[0-1]\d{2}|[1-9]?\d)\.(25[0-5]|2[0-4]\d|[0-1]\d{2}|[1-9]?\d)\.(25[0-5]|2[0-4]\d|[0-1]\d{2}|[1-9]?\d)\.(25[0-5]|2[0-4]\d|[0-1]\d{2}|[1-9]?\d)`
 
-var ipAPI = []string{"http://ip.cn", "http://ipinfo.io", "http://ifconfig.co", "http://pv.sohu.com/cityjson?ie=utf-8", "http://whois.pconline.com.cn/ipJson.jsp"}
+var ipAPI = []string{
+	"http://ip.cn", "http://ipinfo.io", "http://ifconfig.co", "http://myip.ipip.net",
+	"http://ip.6655.com/ip.aspx", "http://pv.sohu.com/cityjson?ie=utf-8", "http://whois.pconline.com.cn/ipJson.jsp",
+}
 
 func getIP() (ip string) {
-	ipMap := make(map[string]int, len(ipAPI))
+	var (
+		wg    sync.WaitGroup
+		lc    sync.Mutex
+		ipMap = make(map[string]int, len(ipAPI))
+	)
 	for _, url := range ipAPI {
-		ip = regexp.MustCompile(regxIP).FindString(wGet(url))
-		// log.Println(ip, url)
-		if len(ip) > 0 {
-			ipMap[ip]++
-		}
+		wg.Add(1)
+		go func(url string) {
+			ip := regexp.MustCompile(regxIP).FindString(wGet(url))
+			// log.Println(ip, url)
+			if len(ip) > 0 {
+				lc.Lock()
+				ipMap[ip]++
+				lc.Unlock()
+			}
+			wg.Done()
+		}(url)
 	}
+	wg.Wait()
 	max := 0
 	for k, v := range ipMap {
 		if v > len(ipAPI)/2 {
