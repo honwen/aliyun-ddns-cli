@@ -190,7 +190,7 @@ func main() {
 		{
 			Name:     "getip",
 			Category: "GET-IP",
-			Usage:    "      Get IP Combine 5 different Web-API",
+			Usage:    "      Get IP Combine 10 different Web-API",
 			Action: func(c *cli.Context) error {
 				// fmt.Println(c.Command.Name, "task: ", c.Command.Usage)
 				fmt.Println(getIP())

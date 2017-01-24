@@ -11,6 +11,7 @@ const regxIP = `(25[0-5]|2[0-4]\d|[0-1]\d{2}|[1-9]?\d)\.(25[0-5]|2[0-4]\d|[0-1]\
 
 var ipAPI = []string{
 	"http://ip.cn", "http://ipinfo.io", "http://ifconfig.co", "http://myip.ipip.net",
+	"http://cnc.synology.cn:81", "http://jpc.synology.com:81", "http://usc.synology.com:81",
 	"http://ip.6655.com/ip.aspx", "http://pv.sohu.com/cityjson?ie=utf-8", "http://whois.pconline.com.cn/ipJson.jsp",
 }
 
