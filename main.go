@@ -7,6 +7,8 @@ import (
 
 	"regexp"
 
+	"time"
+
 	"github.com/denverdino/aliyungo/dns"
 	"github.com/urfave/cli"
 )
@@ -148,43 +150,57 @@ func main() {
 					Name:  "domain, d",
 					Usage: "specify `DomainName`. like ddns.aliyun.com",
 				},
+				cli.Int64Flag{
+					Name:  "redo, r",
+					Value: 0,
+					Usage: "redo Auto-Update, every N `Seconds`; Disable if N less than 10",
+				},
 			},
 			Action: func(c *cli.Context) error {
 				if err := appInit(c); err != nil {
 					return err
 				}
-				// fmt.Println(c.Command.Name, "task: ", accessKey, c.String("domain"))
+				// fmt.Println(c.Command.Name, "task: ", accessKey, c.String("domain"), c.Int64("redo"))
+				redoDurtion := c.Int64("redo")
 				rr := regexp.MustCompile(`\.[^\.]*`).ReplaceAllString(c.String("domain"), "")
 				domain := regexp.MustCompile(`^[^\.]*\.`).ReplaceAllString(c.String("domain"), "")
 				// fmt.Println(rr, domain)
-				dnsRecords, err := accessKey.list(domain)
-				var target *dns.RecordType
-				if err != nil {
-					fmt.Printf("%+v", err)
-				} else {
-					for i := range dnsRecords {
-						if dnsRecords[i].RR == rr {
-							target = &dnsRecords[i]
-							break
-						}
-					}
-				}
-				if target != nil {
-					ipaddr := getIP()
-					if ipaddr == target.Value {
-						fmt.Println(target.RR+`.`+target.DomainName, ipaddr)
-						return nil
-					}
-					err = accessKey.update(target.RecordId, target.RR, ipaddr)
+				for {
+					dnsRecords, err := accessKey.list(domain)
+					var target *dns.RecordType
 					if err != nil {
 						fmt.Printf("%+v", err)
 					} else {
-						fmt.Println(target.RR+`.`+target.DomainName, ipaddr)
+						for i := range dnsRecords {
+							if dnsRecords[i].RR == rr {
+								target = &dnsRecords[i]
+								break
+							}
+						}
 					}
-				} else {
-					fmt.Println("Can't Find target")
+					if target != nil {
+						ipaddr := getIP()
+						if ipaddr == target.Value {
+							fmt.Println(target.RR+`.`+target.DomainName, ipaddr)
+						} else {
+							if err = accessKey.update(target.RecordId, target.RR, ipaddr); err != nil {
+								fmt.Printf("%+v", err)
+							} else {
+								fmt.Println(target.RR+`.`+target.DomainName, ipaddr)
+							}
+						}
+
+					} else {
+						fmt.Println("Can't Find target")
+					}
+					if redoDurtion > 9 {
+						time.Sleep(time.Duration(redoDurtion) * time.Second)
+					} else {
+						break // Once
+					}
 				}
 				return nil
+
 			},
 		},
 		{
