@@ -5,8 +5,10 @@ import (
 	"net/http"
 	"regexp"
 	"sync"
+	"time"
 )
 
+const defaultTimeout = 333 * time.Millisecond
 const regxIP = `(25[0-5]|2[0-4]\d|[0-1]\d{2}|[1-9]?\d)\.(25[0-5]|2[0-4]\d|[0-1]\d{2}|[1-9]?\d)\.(25[0-5]|2[0-4]\d|[0-1]\d{2}|[1-9]?\d)\.(25[0-5]|2[0-4]\d|[0-1]\d{2}|[1-9]?\d)`
 
 var ipAPI = []string{
@@ -24,7 +26,7 @@ func getIP() (ip string) {
 	for _, url := range ipAPI {
 		wg.Add(1)
 		go func(url string) {
-			ip := regexp.MustCompile(regxIP).FindString(wGet(url))
+			ip := regexp.MustCompile(regxIP).FindString(wGet(url, defaultTimeout))
 			// log.Println(ip, url)
 			if len(ip) > 0 {
 				lc.Lock()
@@ -44,14 +46,28 @@ func getIP() (ip string) {
 			ip = k
 		}
 	}
+
+	if len(ip) == 0 {
+		// Use First ipAPI as failsafe
+		ip = regexp.MustCompile(regxIP).FindString(wGet(ipAPI[0], 20*defaultTimeout))
+	}
 	return
 }
 
-func wGet(url string) (str string) {
-	if res, err := http.Get(url); err == nil {
-		defer res.Body.Close()
-		body, _ := ioutil.ReadAll(res.Body)
-		str = string(body)
+func wGet(url string, timeout time.Duration) (str string) {
+	request, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return
 	}
+	client := &http.Client{
+		Timeout: timeout,
+	}
+	resp, err := client.Do(request)
+	if err != nil {
+		return
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	resp.Body.Close()
+	str = string(body)
 	return
 }
