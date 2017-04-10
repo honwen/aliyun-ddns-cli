@@ -1,7 +1,9 @@
 #!/bin/bash
+
+name='aliddns'
+
 MD5='md5sum'
-unamestr=`uname`
-if [[ "$unamestr" == 'Darwin' ]]; then
+if [[ "$(uname)" == 'Darwin' ]]; then
 	MD5='md5'
 fi
 
@@ -14,6 +16,7 @@ VERSION=`date -u +%Y%m%d`
 LDFLAGS="-X main.version=$VERSION -s -w -linkmode external -extldflags -static"
 GCFLAGS=""
 
+# X86
 OSES=(windows linux darwin freebsd)
 ARCHS=(amd64 386)
 rm -rf ./release
@@ -25,28 +28,28 @@ for os in ${OSES[@]}; do
 			suffix=".exe"
 			LDFLAGS="-X main.version=$VERSION -s -w"
 		fi
-		env CGO_ENABLED=0 GOOS=$os GOARCH=$arch go build -ldflags "$LDFLAGS" -gcflags "$GCFLAGS" -o ./release/aliddns_${os}_${arch}${suffix} github.com/chenhw2/aliyun-ddns-cli
-		if $UPX; then upx -9 ./release/aliddns_${os}_${arch}${suffix};fi
-		tar -zcf ./release/aliddns_${os}-${arch}-$VERSION.tar.gz ./release/aliddns_${os}_${arch}${suffix}
-		$MD5 ./release/aliddns_${os}-${arch}-$VERSION.tar.gz
+		env CGO_ENABLED=0 GOOS=$os GOARCH=$arch go build -ldflags "$LDFLAGS" -gcflags "$GCFLAGS" -o ./release/${name}_${os}_${arch}${suffix} .
+		if $UPX; then upx -9 ./release/${name}_${os}_${arch}${suffix}; fi
+		tar -C ./release -zcf ./release/${name}_${os}-${arch}-$VERSION.tar.gz ./${name}_${os}_${arch}${suffix}
+		$MD5 ./release/${name}_${os}-${arch}-$VERSION.tar.gz
 	done
 done
 
 # ARM
 ARMS=(5 6 7)
 for v in ${ARMS[@]}; do
-	env CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=$v go build -ldflags "$LDFLAGS" -gcflags "$GCFLAGS" -o ./release/aliddns_arm$v  github.com/chenhw2/aliyun-ddns-cli
+	env CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=$v go build -ldflags "$LDFLAGS" -gcflags "$GCFLAGS" -o ./release/${name}_arm$v .
 done
-if $UPX; then upx -9 ./release/aliddns_arm*;fi
-tar -zcf ./release/aliddns_arm-$VERSION.tar.gz ./release/aliddns_arm*
-$MD5 ./release/aliddns_arm-$VERSION.tar.gz
+if $UPX; then upx -9 ./release/${name}_arm*; fi
+tar -C ./release -zcf ./release/${name}_arm-$VERSION.tar.gz $(for v in ${ARMS[@]}; do echo -n "./${name}_arm$v ";done)
+$MD5 ./release/${name}_arm-$VERSION.tar.gz
 
-#MIPS32LE
+# MIPS # go 1.8+ required
 LDFLAGS="-X main.version=$VERSION -s -w"
-env CGO_ENABLED=0 GOOS=linux GOARCH=mipsle go build -ldflags "$LDFLAGS" -gcflags "$GCFLAGS" -o ./release/aliddns_mipsle github.com/chenhw2/aliyun-ddns-cli
-env CGO_ENABLED=0 GOOS=linux GOARCH=mips go build -ldflags "$LDFLAGS" -gcflags "$GCFLAGS" -o ./release/aliddns_mips github.com/chenhw2/aliyun-ddns-cli
+env CGO_ENABLED=0 GOOS=linux GOARCH=mipsle go build -ldflags "$LDFLAGS" -gcflags "$GCFLAGS" -o ./release/${name}_mipsle .
+env CGO_ENABLED=0 GOOS=linux GOARCH=mips go build -ldflags "$LDFLAGS" -gcflags "$GCFLAGS" -o ./release/${name}_mips .
 
-if $UPX; then upx -9 ./release/aliddns_mips**;fi
-tar -zcf ./release/aliddns_mipsle-$VERSION.tar.gz ./release/aliddns_mipsle
-tar -zcf ./release/aliddns_mips-$VERSION.tar.gz ./release/aliddns_mips
-$MD5 ./release/aliddns_mipsle-$VERSION.tar.gz
+if $UPX; then upx -9 ./release/${name}_mips**; fi
+tar -C ./release -zcf ./release/${name}_mipsle-$VERSION.tar.gz ./${name}_mipsle
+tar -C ./release -zcf ./release/${name}_mips-$VERSION.tar.gz ./${name}_mips
+$MD5 ./release/${name}_mipsle-$VERSION.tar.gz
