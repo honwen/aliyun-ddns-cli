@@ -8,7 +8,7 @@ fi
 
 AccessKeyID=${AccessKeyID:-LTAIlzrfC9p85z8a}
 AccessKeySecret=${AccessKeySecret:-wYDg4epPF4dGhCvjoIREehFYRAR0ll}
-Domain=${Domain:-wpeak.win}
+Domain=${Domain:-www.wpeak.win}
 Redo=${Redo:-0}
 
 cat > /opt/supervisord.conf <<EOF
