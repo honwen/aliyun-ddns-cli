@@ -6,9 +6,9 @@ if [ -n "$cmdArgs" ]; then
   exit 0
 fi
 
-AccessKeyID=${AccessKeyID:-1234567890}
-AccessKeySecret=${AccessKeySecret:-abcdefghijklmn}
-Domain=${Domain:-ddns.example.win}
+AccessKeyID=${AccessKeyID:-LTAIlzrfC9p85z8a}
+AccessKeySecret=${AccessKeySecret:-wYDg4epPF4dGhCvjoIREehFYRAR0ll}
+Domain=${Domain:-wpeak.win}
 Redo=${Redo:-0}
 
 cat > /opt/supervisord.conf <<EOF
