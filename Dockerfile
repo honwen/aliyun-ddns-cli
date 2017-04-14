@@ -1,7 +1,7 @@
 FROM alpine:edge
 MAINTAINER CHENHW2 <https://github.com/chenhw2>
 
-ARG BIN_URL=https://github.com/chenhw2/aliyun-ddns-cli/releases/download/v20170410/aliddns_linux-amd64-20170410.tar.gz
+ARG BIN_URL=https://github.com/chenhw2/aliyun-ddns-cli/releases/download/v20170413/aliddns_linux-amd64-20170413.tar.gz
 
 RUN apk add --update --no-cache wget supervisor ca-certificates \
     && update-ca-certificates \

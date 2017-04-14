@@ -18,6 +18,9 @@ nodaemon=true
 [program:aliddns]
 command=/opt/aliddns --id ${AccessKeyID} --secret ${AccessKeySecret} auto-update --domain ${Domain} --redo ${Redo}
 autorestart=true
+redirect_stderr=true
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
 
 EOF
 
