@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 
 	"regexp"
@@ -93,6 +94,9 @@ func (ak *AccessKey) addRecord(domain, rr, dmType, value string) (err error) {
 }
 
 func (ak *AccessKey) doDDNSUpdate(fulldomain, ipaddr string) (err error) {
+	if getDNS(fulldomain) == ipaddr {
+		return // Skip
+	}
 	rr := regexp.MustCompile(`\.[^\.]*`).ReplaceAllString(fulldomain, "")
 	domain := regexp.MustCompile(`^[^\.]*\.`).ReplaceAllString(fulldomain, "")
 	// fmt.Println(rr, domain)
@@ -240,7 +244,7 @@ func main() {
 		{
 			Name:     "getip",
 			Category: "GET-IP",
-			Usage:    "      Get IP Combine 10 different Web-API",
+			Usage:    fmt.Sprintf("      Get IP Combine %d different Web-API", len(ipAPI)),
 			Action: func(c *cli.Context) error {
 				// fmt.Println(c.Command.Name, "task: ", c.Command.Usage)
 				fmt.Println(getIP())
@@ -271,5 +275,6 @@ func appInit(c *cli.Context) error {
 		cli.ShowAppHelp(c)
 		return errors.New("access-key is empty")
 	}
+	rand.Seed(time.Now().UnixNano())
 	return nil
 }

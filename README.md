@@ -39,7 +39,7 @@ COMMANDS:
      update       Update AliYun's DNS DomainRecords Record, Create Record if not exist
      auto-update  Auto-Update AliYun's DNS DomainRecords Record, Get IP using its getip
    GET-IP:
-     getip        Get IP Combine 10 different Web-API
+     getip        Get IP Combine 11 different Web-API
 
 GLOBAL OPTIONS:
    --access-key-id value, --id value          AliYun's Access Key ID
