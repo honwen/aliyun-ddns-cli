@@ -1,10 +1,12 @@
 FROM alpine:edge
 MAINTAINER CHENHW2 <https://github.com/chenhw2>
 
-ARG BIN_URL=https://github.com/chenhw2/aliyun-ddns-cli/releases/download/v20170413/aliddns_linux-amd64-20170413.tar.gz
+ARG BIN_URL=https://github.com/chenhw2/aliyun-ddns-cli/releases/download/v20170420/aliddns_linux-amd64-20170420.tar.gz
+ARG TZ=Asia/Hong_Kong
 
-RUN apk add --update --no-cache wget supervisor ca-certificates \
+RUN apk add --update --no-cache wget supervisor ca-certificates tzdata \
     && update-ca-certificates \
+    && ln -sf /usr/share/zoneinfo/$TZ /etc/localtime \
     && rm -rf /var/cache/apk/*
 
 RUN mkdir -p /opt \
