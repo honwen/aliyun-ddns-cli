@@ -1,17 +1,18 @@
-FROM alpine:edge
+FROM alpine:3.5
 MAINTAINER CHENHW2 <https://github.com/chenhw2>
 
-ARG BIN_URL=https://github.com/chenhw2/aliyun-ddns-cli/releases/download/v20170420/aliddns_linux-amd64-20170420.tar.gz
+ARG VER=20170627
+ARG URL=https://github.com/chenhw2/aliyun-ddns-cli/releases/download/v$VER/aliddns_linux-amd64-$VER.tar.gz
 ARG TZ=Asia/Hong_Kong
 
-RUN apk add --update --no-cache wget supervisor ca-certificates tzdata \
+RUN apk add --update --no-cache wget ca-certificates tzdata \
     && update-ca-certificates \
     && ln -sf /usr/share/zoneinfo/$TZ /etc/localtime \
     && rm -rf /var/cache/apk/*
 
-RUN mkdir -p /opt \
-    && cd /opt \
-    && wget -qO- ${BIN_URL} | tar xz \
+RUN mkdir -p /usr/bin \
+    && cd /usr/bin \
+    && wget -qO- $URL | tar xz \
     && mv aliddns_* aliddns
 
 ENV AccessKeyID=1234567890 \
@@ -19,7 +20,9 @@ ENV AccessKeyID=1234567890 \
     Domain=ddns.example.win \
     Redo=0
 
-ADD Docker_entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
-ENTRYPOINT ["/entrypoint.sh"]
+CMD aliddns \
+    --id $AccessKeyID \
+    --secret $AccessKeySecret \
+    auto-update \
+    --domain $Domain \
+    --redo $Redo

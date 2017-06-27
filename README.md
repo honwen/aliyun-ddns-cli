@@ -17,8 +17,11 @@ $ docker run -d \
     -e "AcceDomain=ddns.example.winssKeyID" \
     -e "Redo=600" \
     chenhw2/aliyun-ddns-cli
-
 ```
+  
+### Example (for Synology)
+- https://github.com/chenhw2/aliyun-ddns-cli/tree/master/example
+
 ### Help
 ```
 $ docker run --rm chenhw2/aliyun-ddns-cli -h
@@ -46,8 +49,8 @@ GLOBAL OPTIONS:
    --access-key-secret value, --secret value  AliYun's Access Key Secret
    --help, -h                                 show help
    --version, -v                              print the version
-
 ```
+  
 ### CLI Example:
 ```
 aliddns --id ${AccessKeyID} --secret ${AccessKeySecret} \
@@ -56,5 +59,4 @@ aliddns --id ${AccessKeyID} --secret ${AccessKeySecret} \
 aliddns --id ${AccessKeyID} --secret ${AccessKeySecret} \
     update --domain ddns.example.win \
     --ipaddr $(ifconfig pppoe-wan | sed -n '2{s/[^0-9]*://;s/[^0-9.].*//p}')
-
 ```
