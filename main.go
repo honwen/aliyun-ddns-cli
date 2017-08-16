@@ -28,6 +28,7 @@ func (ak *AccessKey) getClient() *dns.Client {
 	}
 	if ak.client == nil {
 		ak.client = dns.NewClient(ak.ID, ak.Secret)
+		ak.client.SetEndpoint(dns.DNSDefaultEndpointNew)
 	}
 	return ak.client
 }
@@ -36,9 +37,9 @@ func (ak AccessKey) String() string {
 	return fmt.Sprintf("Access Key: [ ID: %s ;\t Secret: %s ]", ak.ID, ak.Secret)
 }
 
-func (ak *AccessKey) listRecord(domain string) (dnsRecords []dns.RecordType, err error) {
-	res, err := ak.getClient().DescribeDomainRecords(
-		&dns.DescribeDomainRecordsArgs{
+func (ak *AccessKey) listRecord(domain string) (dnsRecords []dns.RecordTypeNew, err error) {
+	res, err := ak.getClient().DescribeDomainRecordsNew(
+		&dns.DescribeDomainRecordsNewArgs{
 			DomainName: domain,
 		})
 	if err != nil {
@@ -52,7 +53,7 @@ func (ak *AccessKey) delRecord(fulldomain string) (err error) {
 	rr := regexp.MustCompile(`\.[^\.]*`).ReplaceAllString(fulldomain, "")
 	domain := regexp.MustCompile(`^[^\.]*\.`).ReplaceAllString(fulldomain, "")
 	// fmt.Println(rr, domain)
-	var target *dns.RecordType
+	var target *dns.RecordTypeNew
 	if dnsRecords, err := ak.listRecord(domain); err == nil {
 		for i := range dnsRecords {
 			if dnsRecords[i].RR == rr {
@@ -100,7 +101,7 @@ func (ak *AccessKey) doDDNSUpdate(fulldomain, ipaddr string) (err error) {
 	rr := regexp.MustCompile(`\.[^\.]*`).ReplaceAllString(fulldomain, "")
 	domain := regexp.MustCompile(`^[^\.]*\.`).ReplaceAllString(fulldomain, "")
 	// fmt.Println(rr, domain)
-	var target *dns.RecordType
+	var target *dns.RecordTypeNew
 	if dnsRecords, err := ak.listRecord(domain); err == nil {
 		for i := range dnsRecords {
 			if dnsRecords[i].RR == rr {
