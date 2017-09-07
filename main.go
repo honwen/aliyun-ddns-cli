@@ -6,12 +6,10 @@ import (
 	"log"
 	"math/rand"
 	"os"
-
 	"regexp"
-
 	"time"
 
-	"github.com/denverdino/aliyungo/dns"
+	dns "github.com/chenhw2/aliyun-ddns-cli/alidns"
 	"github.com/urfave/cli"
 )
 

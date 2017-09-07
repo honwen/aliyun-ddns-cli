@@ -1,7 +1,7 @@
 ### Source
 - https://github.com/chenhw2/aliyun-ddns-cli
   
-### Thanks to
+### Thanks (package alidns)
 - https://github.com/denverdino/aliyungo
   
 ### Docker
