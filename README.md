@@ -36,17 +36,20 @@ VERSION:
 
 COMMANDS:
      help, h  Shows a list of commands or help for one command
+
    DDNS:
      list         List AliYun's DNS DomainRecords Record
      delete       Delete AliYun's DNS DomainRecords Record
      update       Update AliYun's DNS DomainRecords Record, Create Record if not exist
      auto-update  Auto-Update AliYun's DNS DomainRecords Record, Get IP using its getip
+
    GET-IP:
      getip        Get IP Combine 11 different Web-API
 
 GLOBAL OPTIONS:
    --access-key-id value, --id value          AliYun's Access Key ID
    --access-key-secret value, --secret value  AliYun's Access Key Secret
+   --ipapi value, --api value                 Web-API to Get IP, like: http://myip.ipip.net
    --help, -h                                 show help
    --version, -v                              print the version
 ```

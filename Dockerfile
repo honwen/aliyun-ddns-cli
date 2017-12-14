@@ -11,11 +11,13 @@ COPY --from=builder /go/bin /usr/bin
 ENV AKID=1234567890 \
     AKSCT=abcdefghijklmn \
     DOMAIN=ddns.example.win \
+    IPAPI=[IPAPI-GROUP] \
     REDO=0
 
 CMD aliyun-ddns-cli \
     --id ${AKID} \
     --secret ${AKSCT} \
+    --ipapi ${IPAPI} \
     auto-update \
     --domain ${DOMAIN} \
     --redo ${REDO}

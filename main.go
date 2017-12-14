@@ -123,6 +123,10 @@ var (
 	version   = "MISSING build version [git hash]"
 )
 
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
+
 func main() {
 	app := cli.NewApp()
 	app.Name = "aliddns"
@@ -260,6 +264,10 @@ func main() {
 			Name:  "access-key-secret, secret",
 			Usage: "AliYun's Access Key Secret",
 		},
+		cli.StringSliceFlag{
+			Name:  "ipapi, api",
+			Usage: "Web-API to Get IP, like: http://myip.ipip.net",
+		},
 	}
 	app.Action = func(c *cli.Context) error {
 		return appInit(c)
@@ -274,6 +282,19 @@ func appInit(c *cli.Context) error {
 		cli.ShowAppHelp(c)
 		return errors.New("access-key is empty")
 	}
-	rand.Seed(time.Now().UnixNano())
+
+	newIPAPI := make([]string, 0)
+	for _, api := range c.GlobalStringSlice("ipapi") {
+		if !regexp.MustCompile(`^https?://.*`).MatchString(api) {
+			api = "http://" + api
+		}
+		if regexp.MustCompile(`(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]`).MatchString(api) {
+			newIPAPI = append(newIPAPI, api)
+		}
+	}
+	if len(newIPAPI) > 0 {
+		ipAPI = newIPAPI
+	}
+
 	return nil
 }
