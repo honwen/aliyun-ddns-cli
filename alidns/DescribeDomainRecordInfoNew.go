@@ -9,6 +9,9 @@ type RecordTypeNew struct {
 	RR         string
 	Type       string
 	Value      string
+	Line       string
+	Status     string
+	Locked     bool
 }
 
 type DescribeDomainRecordInfoNewArgs struct {
