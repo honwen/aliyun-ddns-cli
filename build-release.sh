@@ -12,7 +12,7 @@ if hash upx 2>/dev/null; then
 	UPX=true
 fi
 
-VERSION=`date -u +%Y%m%d`
+VERSION=`git rev-parse --short HEAD`
 LDFLAGS="-X main.version=$VERSION -s -w -linkmode external -extldflags -static"
 GCFLAGS=""
 

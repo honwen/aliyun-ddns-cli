@@ -12,14 +12,19 @@ import (
 	"github.com/miekg/dns"
 )
 
-const minTimeout = 333 * time.Millisecond
+const minTimeout = 2000 * time.Millisecond
 const regxIP = `(25[0-5]|2[0-4]\d|[0-1]\d{2}|[1-9]?\d)\.(25[0-5]|2[0-4]\d|[0-1]\d{2}|[1-9]?\d)\.(25[0-5]|2[0-4]\d|[0-1]\d{2}|[1-9]?\d)\.(25[0-5]|2[0-4]\d|[0-1]\d{2}|[1-9]?\d)`
 
 var ipAPI = []string{
-	"http://cn.ip.cn", "http://ipinfo.io", "http://ifconfig.co", "http://myip.ipip.net",
+	"http://ip.chinaz.com/getip.aspx", "http://ddns.oray.com/checkip", "http://haoip.cn",
 	"http://cnc.synology.cn:81", "http://jpc.synology.com:81", "http://usc.synology.com:81",
 	"http://ip.6655.com/ip.aspx", "http://pv.sohu.com/cityjson?ie=utf-8", "http://whois.pconline.com.cn/ipJson.jsp",
-	"http://ddns.oray.com/checkip",
+}
+
+var curlVer = []string{
+	"7.59.0", "7.58.0", "7.57.0", "7.56.1", "7.56.0", "7.55.1", "7.55.0", "7.54.1", "7.54.0", "7.53.1", "7.53.0", "7.52.1",
+	"7.52.0", "7.51.0", "7.50.3", "7.50.2", "7.50.1", "7.50.0", "7.49.1", "7.49.0", "7.48.0", "7.47.1", "7.47.0", "7.46.0",
+	"7.45.0", "7.44.0", "7.43.0", "7.42.1", "7.42.0", "7.41.0", "7.40.0", "7.39.0", "7.38.0", "7.37.1", "7.37.0", "7.36.0",
 }
 
 func getIP() (ip string) {
@@ -54,13 +59,14 @@ func getIP() (ip string) {
 
 	// Use First ipAPI as failsafe
 	if 0 == len(ip) {
-		ip = regexp.MustCompile(regxIP).FindString(wGet(ipAPI[0], 20*minTimeout))
+		ip = regexp.MustCompile(regxIP).FindString(wGet(ipAPI[0], 5*minTimeout))
 	}
 	return
 }
 
 func wGet(url string, timeout time.Duration) (str string) {
 	request, err := http.NewRequest("GET", url, nil)
+	request.Header.Set("User-Agent", "curl/"+curlVer[rand.Intn(len(curlVer))])
 	if err != nil {
 		return
 	}
@@ -74,6 +80,7 @@ func wGet(url string, timeout time.Duration) (str string) {
 	body, err := ioutil.ReadAll(resp.Body)
 	resp.Body.Close()
 	str = string(body)
+	// fmt.Println(url, regexp.MustCompile(regxIP).FindString(str))
 	return
 }
 

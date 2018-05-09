@@ -7,6 +7,8 @@ import (
 	"math/rand"
 	"os"
 	"regexp"
+	"runtime"
+	"strings"
 	"time"
 
 	dns "github.com/chenhw2/aliyun-ddns-cli/alidns"
@@ -131,7 +133,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "aliddns"
 	app.Usage = "aliyun-ddns-cli"
-	app.Version = version
+	app.Version = "Git:" + strings.ToUpper(version)
 	app.Commands = []cli.Command{
 		{
 			Name:     "list",
@@ -296,5 +298,11 @@ func appInit(c *cli.Context) error {
 		ipAPI = newIPAPI
 	}
 
+	// Print Version
+	if strings.HasPrefix(version, "MISSING") {
+		fmt.Fprintf(os.Stderr, "%s (%s)\n", strings.ToUpper(c.App.Name), runtime.Version())
+	} else {
+		fmt.Fprintf(os.Stderr, "%s %s (%s)\n", strings.ToUpper(c.App.Name), c.App.Version, runtime.Version())
+	}
 	return nil
 }
