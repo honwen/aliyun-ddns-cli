@@ -48,8 +48,13 @@ $MD5 ./release/${name}_arm-$VERSION.tar.gz
 LDFLAGS="-X main.version=$VERSION -s -w"
 env CGO_ENABLED=0 GOOS=linux GOARCH=mipsle go build -ldflags "$LDFLAGS" -gcflags "$GCFLAGS" -o ./release/${name}_mipsle .
 env CGO_ENABLED=0 GOOS=linux GOARCH=mips go build -ldflags "$LDFLAGS" -gcflags "$GCFLAGS" -o ./release/${name}_mips .
+# MIPS # go 1.10+ required
+env CGO_ENABLED=0 GOOS=linux GOARCH=mipsle GOMIPS=softfloat go build -ldflags "$LDFLAGS" -gcflags "$GCFLAGS" -o ./release/${name}_mipsle_sf .
+env CGO_ENABLED=0 GOOS=linux GOARCH=mips GOMIPS=softfloat go build -ldflags "$LDFLAGS" -gcflags "$GCFLAGS" -o ./release/${name}_mips_sf .
 
 if $UPX; then upx -9 ./release/${name}_mips**; fi
 tar -C ./release -zcf ./release/${name}_mipsle-$VERSION.tar.gz ./${name}_mipsle
 tar -C ./release -zcf ./release/${name}_mips-$VERSION.tar.gz ./${name}_mips
+tar -C ./release -zcf ./release/${name}_mipsle-sf-$VERSION.tar.gz ./${name}_mipsle_sf
+tar -C ./release -zcf ./release/${name}_mips-sf-$VERSION.tar.gz ./${name}_mips_sf
 $MD5 ./release/${name}_mipsle-$VERSION.tar.gz

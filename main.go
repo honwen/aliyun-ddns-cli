@@ -8,6 +8,7 @@ import (
 	"os"
 	"regexp"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
@@ -37,7 +38,7 @@ func (ak AccessKey) String() string {
 	return fmt.Sprintf("Access Key: [ ID: %s ;\t Secret: %s ]", ak.ID, ak.Secret)
 }
 
-func (ak *AccessKey) listRecord(domain string) (dnsRecords []dns.RecordTypeNew, err error) {
+func (ak *AccessKey) ListRecord(domain string) (dnsRecords []dns.RecordTypeNew, err error) {
 	res, err := ak.getClient().DescribeDomainRecordsNew(
 		&dns.DescribeDomainRecordsNewArgs{
 			DomainName: domain,
@@ -49,12 +50,12 @@ func (ak *AccessKey) listRecord(domain string) (dnsRecords []dns.RecordTypeNew, 
 	return
 }
 
-func (ak *AccessKey) delRecord(fulldomain string) (err error) {
+func (ak *AccessKey) DelRecord(fulldomain string) (err error) {
 	rr := regexp.MustCompile(`\.[^\.]*`).ReplaceAllString(fulldomain, "")
 	domain := regexp.MustCompile(`^[^\.]*\.`).ReplaceAllString(fulldomain, "")
 	// fmt.Println(rr, domain)
 	var target *dns.RecordTypeNew
-	if dnsRecords, err := ak.listRecord(domain); err == nil {
+	if dnsRecords, err := ak.ListRecord(domain); err == nil {
 		for i := range dnsRecords {
 			if dnsRecords[i].RR == rr {
 				target = &dnsRecords[i]
@@ -72,7 +73,7 @@ func (ak *AccessKey) delRecord(fulldomain string) (err error) {
 	return
 }
 
-func (ak *AccessKey) updateRecord(recordID, rr, value string) (err error) {
+func (ak *AccessKey) UpdateRecord(recordID, rr, value string) (err error) {
 	_, err = ak.getClient().UpdateDomainRecord(
 		&dns.UpdateDomainRecordArgs{
 			RecordId: recordID,
@@ -83,7 +84,7 @@ func (ak *AccessKey) updateRecord(recordID, rr, value string) (err error) {
 	return
 }
 
-func (ak *AccessKey) addRecord(domain, rr, dmType, value string) (err error) {
+func (ak *AccessKey) AddRecord(domain, rr, dmType, value string) (err error) {
 	_, err = ak.getClient().AddDomainRecord(
 		&dns.AddDomainRecordArgs{
 			DomainName: domain,
@@ -94,7 +95,7 @@ func (ak *AccessKey) addRecord(domain, rr, dmType, value string) (err error) {
 	return err
 }
 
-func (ak *AccessKey) doDDNSUpdate(fulldomain, ipaddr string) (err error) {
+func (ak *AccessKey) CheckAndUpdateRecordA(fulldomain, ipaddr string) (err error) {
 	if getDNS(fulldomain) == ipaddr {
 		return // Skip
 	}
@@ -102,7 +103,7 @@ func (ak *AccessKey) doDDNSUpdate(fulldomain, ipaddr string) (err error) {
 	domain := regexp.MustCompile(`^[^\.]*\.`).ReplaceAllString(fulldomain, "")
 	// fmt.Println(rr, domain)
 	var target *dns.RecordTypeNew
-	if dnsRecords, err := ak.listRecord(domain); err == nil {
+	if dnsRecords, err := ak.ListRecord(domain); err == nil {
 		for i := range dnsRecords {
 			if dnsRecords[i].RR == rr {
 				target = &dnsRecords[i]
@@ -113,9 +114,9 @@ func (ak *AccessKey) doDDNSUpdate(fulldomain, ipaddr string) (err error) {
 		return err
 	}
 	if target == nil {
-		err = ak.addRecord(domain, rr, "A", ipaddr)
+		err = ak.AddRecord(domain, rr, "A", ipaddr)
 	} else if target.Value != ipaddr {
-		err = ak.updateRecord(target.RecordId, target.RR, ipaddr)
+		err = ak.UpdateRecord(target.RecordId, target.RR, ipaddr)
 	}
 	return err
 }
@@ -133,7 +134,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "aliddns"
 	app.Usage = "aliyun-ddns-cli"
-	app.Version = "Git:" + strings.ToUpper(version)
+	app.Version = fmt.Sprintf("Git:[%s] (%s)", strings.ToUpper(version), runtime.Version())
 	app.Commands = []cli.Command{
 		{
 			Name:     "list",
@@ -150,11 +151,11 @@ func main() {
 					return err
 				}
 				// fmt.Println(c.Command.Name, "task: ", accessKey, c.String("domain"))
-				if dnsRecords, err := accessKey.listRecord(c.String("domain")); err != nil {
+				if dnsRecords, err := accessKey.ListRecord(c.String("domain")); err != nil {
 					fmt.Printf("%+v", err)
 				} else {
 					for _, v := range dnsRecords {
-						fmt.Println(v.RR+`.`+v.DomainName, fmt.Sprintf(" %5s ", v.Type), v.Value)
+						fmt.Printf("%20s   %-6s %s\n", v.RR+`.`+v.DomainName, v.Type, v.Value)
 					}
 				}
 				return nil
@@ -175,7 +176,7 @@ func main() {
 					return err
 				}
 				// fmt.Println(c.Command.Name, "task: ", accessKey, c.String("domain"))
-				if err := accessKey.delRecord(c.String("domain")); err != nil {
+				if err := accessKey.DelRecord(c.String("domain")); err != nil {
 					fmt.Printf("%+v", err)
 				} else {
 					fmt.Println(c.String("domain"), "Deleted")
@@ -202,7 +203,7 @@ func main() {
 					return err
 				}
 				// fmt.Println(c.Command.Name, "task: ", accessKey, c.String("domain"), c.String("ipaddr"))
-				if err := accessKey.doDDNSUpdate(c.String("domain"), c.String("ipaddr")); err != nil {
+				if err := accessKey.CheckAndUpdateRecordA(c.String("domain"), c.String("ipaddr")); err != nil {
 					log.Printf("%+v", err)
 				} else {
 					log.Println(c.String("domain"), c.String("ipaddr"))
@@ -219,10 +220,10 @@ func main() {
 					Name:  "domain, d",
 					Usage: "Specific `DomainName`. like ddns.aliyun.com",
 				},
-				cli.Int64Flag{
+				cli.StringFlag{
 					Name:  "redo, r",
-					Value: 0,
-					Usage: "redo Auto-Update, every N `Seconds`; Disable if N less than 10",
+					Value: "",
+					Usage: "redo Auto-Update, every N `Seconds`; Disable if N less than 10; End with [Rr] enable random delay: [N, 2N]",
 				},
 			},
 			Action: func(c *cli.Context) error {
@@ -230,10 +231,24 @@ func main() {
 					return err
 				}
 				// fmt.Println(c.Command.Name, "task: ", accessKey, c.String("domain"), c.Int64("redo"))
-				redoDurtion := c.Int64("redo")
+				redoDurtionStr := c.String("redo")
+				if len(redoDurtionStr) > 0 && !regexp.MustCompile(`\d+[Rr]?$`).MatchString(redoDurtionStr) {
+					return errors.New(`redo format: [0-9]+[Rr]?$`)
+				}
+				randomDelay := regexp.MustCompile(`\d+[Rr]$`).MatchString(redoDurtionStr)
+				redoDurtion := 0
+				if randomDelay {
+					// Print Version if exist
+					if !strings.HasPrefix(version, "MISSING") {
+						fmt.Fprintf(os.Stderr, "%s %s\n", strings.ToUpper(c.App.Name), c.App.Version)
+					}
+					redoDurtion, _ = strconv.Atoi(redoDurtionStr[:len(redoDurtionStr)-1])
+				} else {
+					redoDurtion, _ = strconv.Atoi(redoDurtionStr)
+				}
 				for {
 					autoip := getIP()
-					if err := accessKey.doDDNSUpdate(c.String("domain"), autoip); err != nil {
+					if err := accessKey.CheckAndUpdateRecordA(c.String("domain"), autoip); err != nil {
 						log.Printf("%+v", err)
 					} else {
 						log.Println(c.String("domain"), autoip)
@@ -241,7 +256,11 @@ func main() {
 					if redoDurtion < 10 {
 						break // Disable if N less than 10
 					}
-					time.Sleep(time.Duration(redoDurtion) * time.Second)
+					if randomDelay {
+						time.Sleep(time.Duration(redoDurtion+rand.Intn(redoDurtion)) * time.Second)
+					} else {
+						time.Sleep(time.Duration(redoDurtion) * time.Second)
+					}
 				}
 				return nil
 			},
@@ -298,11 +317,5 @@ func appInit(c *cli.Context) error {
 		ipAPI = newIPAPI
 	}
 
-	// Print Version
-	if strings.HasPrefix(version, "MISSING") {
-		fmt.Fprintf(os.Stderr, "%s (%s)\n", strings.ToUpper(c.App.Name), runtime.Version())
-	} else {
-		fmt.Fprintf(os.Stderr, "%s %s (%s)\n", strings.ToUpper(c.App.Name), c.App.Version, runtime.Version())
-	}
 	return nil
 }
