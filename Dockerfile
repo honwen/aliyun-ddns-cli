@@ -1,6 +1,8 @@
 FROM golang:alpine as builder
+ENV CGO_ENABLED=0
 RUN apk add --update git curl
-RUN go get -u -v \
+RUN set -ex && \
+    go get -u -v \
         -ldflags "-X main.version=$(curl -sSL https://api.github.com/repos/chenhw2/aliyun-ddns-cli/commits/master | \
             sed -n '1,9{/sha/p; /date/p}' | sed 's/.* \"//g' | cut -c1-10 | tr [a-z] [A-Z] | sed 'N;s/\n/@/g')" \
         github.com/chenhw2/aliyun-ddns-cli
@@ -18,8 +20,6 @@ ENV AKID=1234567890 \
     REDO=0
 
 CMD aliyun-ddns-cli \
-    --id ${AKID} \
-    --secret ${AKSCT} \
     --ipapi ${IPAPI} \
     auto-update \
     --domain ${DOMAIN} \

@@ -8,6 +8,7 @@ import (
 	"os"
 	"regexp"
 	"runtime"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -297,8 +298,12 @@ func main() {
 }
 
 func appInit(c *cli.Context) error {
-	accessKey.ID = c.GlobalString("access-key-id")
-	accessKey.Secret = c.GlobalString("access-key-secret")
+	akids := []string{c.GlobalString("access-key-id"), os.Getenv("AKID"), os.Getenv("AccessKeyID")}
+	akscts := []string{c.GlobalString("access-key-secret"), os.Getenv("AKSCT"), os.Getenv("AccessKeySecret")}
+	sort.Sort(sort.Reverse(sort.StringSlice(akids)))
+	sort.Sort(sort.Reverse(sort.StringSlice(akscts)))
+	accessKey.ID = akids[0]
+	accessKey.Secret = akscts[0]
 	if accessKey.getClient() == nil {
 		cli.ShowAppHelp(c)
 		return errors.New("access-key is empty")
