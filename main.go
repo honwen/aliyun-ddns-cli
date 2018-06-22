@@ -14,6 +14,7 @@ import (
 	"time"
 
 	dns "github.com/chenhw2/aliyun-ddns-cli/alidns"
+	"github.com/chenhw2/ip2loc"
 	"github.com/urfave/cli"
 )
 
@@ -131,6 +132,15 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
+func ip2locCN(ip string) (str string) {
+	if loc, err := ip2loc.IP2loc(ip); err != nil {
+		log.Printf("%+v", err)
+	} else {
+		str = fmt.Sprintf("[%s %s %s]", loc.Country, loc.Province, loc.City)
+	}
+	return
+}
+
 func main() {
 	app := cli.NewApp()
 	app.Name = "aliddns"
@@ -207,7 +217,7 @@ func main() {
 				if err := accessKey.CheckAndUpdateRecordA(c.String("domain"), c.String("ipaddr")); err != nil {
 					log.Printf("%+v", err)
 				} else {
-					log.Println(c.String("domain"), c.String("ipaddr"))
+					log.Println(c.String("domain"), c.String("ipaddr"), ip2locCN(c.String("ipaddr")))
 				}
 				return nil
 			},
@@ -252,7 +262,7 @@ func main() {
 					if err := accessKey.CheckAndUpdateRecordA(c.String("domain"), autoip); err != nil {
 						log.Printf("%+v", err)
 					} else {
-						log.Println(c.String("domain"), autoip)
+						log.Println(c.String("domain"), autoip, ip2locCN(autoip))
 					}
 					if redoDurtion < 10 {
 						break // Disable if N less than 10
@@ -272,7 +282,8 @@ func main() {
 			Usage:    fmt.Sprintf("      Get IP Combine %d different Web-API", len(ipAPI)),
 			Action: func(c *cli.Context) error {
 				// fmt.Println(c.Command.Name, "task: ", c.Command.Usage)
-				fmt.Println(getIP())
+				ip := getIP()
+				fmt.Println(ip, ip2locCN(ip))
 				return nil
 			},
 		},
