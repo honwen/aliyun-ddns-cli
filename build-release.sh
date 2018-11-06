@@ -12,7 +12,7 @@ fi
 # 	UPX=true
 # fi
 
-VERSION=$(curl -sSL https://api.github.com/repos/chenhw2/aliyun-ddns-cli/commits/master | sed -n '1,9{/sha/p; /date/p}' | sed 's/.* \"//g' | cut -c1-10 | tr [a-z] [A-Z] | sed 'N;s/\n/@/g')
+VERSION=$(curl -sSL https://api.github.com/repos/chenhw2/aliyun-ddns-cli/commits/master | sed -n '{/sha/p; /data/p;}'| sed 's/.* \"//g'|cut -c1-10|tr "[:lower:]" "[:upper:]"|sed 'N;s/\n/@/g'|head -1)
 LDFLAGS="-X main.version=$VERSION -s -w -linkmode external -extldflags -static"
 GCFLAGS=""
 
