@@ -178,7 +178,7 @@ func main() {
 			Usage:    "Delete AliYun's DNS DomainRecords Record",
 			Flags: []cli.Flag{
 				cli.StringFlag{
-					Name:  "d",
+					Name:  "domain, d",
 					Usage: "Specific `FullDomainName`. like ddns.aliyun.com",
 				},
 			},
