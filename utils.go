@@ -30,8 +30,8 @@ var curlVer = []string{
 func getIP() (ip string) {
 	var (
 		length   = len(ipAPI)
-		ipMap    = make(map[string]int, length)
-		cchan    = make(chan string, length)
+		ipMap    = make(map[string]int, length/5)
+		cchan    = make(chan string, length/2)
 		regx     = regexp.MustCompile(regxIP)
 		maxCount = -1
 	)
@@ -45,10 +45,9 @@ func getIP() (ip string) {
 		if 0 == len(v) {
 			continue
 		}
-		if ipMap[v] >= length/2 {
+		if ipMap[v]++; ipMap[v] >= length/2 {
 			return v
 		}
-		ipMap[v]++
 	}
 	for k, v := range ipMap {
 		if v > maxCount {
