@@ -280,10 +280,21 @@ func main() {
 			Name:     "getip",
 			Category: "GET-IP",
 			Usage:    fmt.Sprintf("      Get IP Combine %d different Web-API", len(ipAPI)),
+			Flags: []cli.Flag{
+				cli.BoolFlag{
+					Name:  "ipv6, 6",
+					Usage: "IPv6",
+				},
+			},
 			Action: func(c *cli.Context) error {
 				// fmt.Println(c.Command.Name, "task: ", c.Command.Usage)
-				ip := getIP()
-				fmt.Println(ip, ip2locCN(ip))
+				if c.Bool("ipv6") {
+					ip := getIP6()
+					fmt.Println(ip)
+				} else {
+					ip := getIP()
+					fmt.Println(ip, ip2locCN(ip))
+				}
 				return nil
 			},
 		},
