@@ -61,17 +61,16 @@ func (ak *AccessKey) DelRecord(fulldomain string) (err error) {
 		for i := range dnsRecords {
 			if dnsRecords[i].RR == rr {
 				target = &dnsRecords[i]
-				break
+				_, err = ak.getClient().DeleteDomainRecord(
+					&dns.DeleteDomainRecordArgs{
+						RecordId: target.RecordId,
+					},
+				)
 			}
 		}
 	} else {
 		return err
 	}
-	_, err = ak.getClient().DeleteDomainRecord(
-		&dns.DeleteDomainRecordArgs{
-			RecordId: target.RecordId,
-		},
-	)
 	return
 }
 
@@ -119,6 +118,10 @@ func (ak *AccessKey) CheckAndUpdateRecordA(fulldomain, ipaddr string) (err error
 		err = ak.AddRecord(domain, rr, "A", ipaddr)
 	} else if target.Value != ipaddr {
 		err = ak.UpdateRecord(target.RecordId, target.RR, ipaddr)
+	}
+	if err != nil && strings.Contains(err.Error(), `DomainRecordDuplicate`) {
+		ak.DelRecord(fulldomain)
+		return ak.CheckAndUpdateRecordA(fulldomain, ipaddr)
 	}
 	return err
 }
