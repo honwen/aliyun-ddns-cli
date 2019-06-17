@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -97,7 +98,7 @@ func (ak *AccessKey) AddRecord(domain, rr, dmType, value string) (err error) {
 }
 
 func (ak *AccessKey) CheckAndUpdateRecord(fulldomain, ipaddr string, ipv6 bool) (err error) {
-	if getDNS(fulldomain) == ipaddr {
+	if getDNS(fulldomain, ipv6) == ipaddr {
 		return // Skip
 	}
 	rr := regexp.MustCompile(`\.[^\.]*`).ReplaceAllString(fulldomain, "")
@@ -143,9 +144,34 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-func ip2locCN(ip string) (str string) {
+func ip2locCN(ip string, ipv6 bool) (str string) {
+	if ipv6 {
+		api := "https://api.ip.sb/geoip/" + ip
+		resp := wGet(api, minTimeout)
+		var result map[string]interface{}
+		if err := json.Unmarshal([]byte(resp), &result); err != nil {
+			log.Printf("ip2locCN Unmarshal %v", err)
+			return
+		}
+		if _, ok := result["code"]; ok {
+			log.Printf("ipv6 format error")
+			return
+		}
+		str = "["
+		if tmp, ok := result["country"].(string); ok {
+			str += tmp + " "
+		}
+		if tmp, ok := result["region"].(string); ok {
+			str += tmp + " "
+		}
+		if tmp, ok := result["city"].(string); ok {
+			str += tmp
+		}
+		str += "]"
+		return
+	}
 	if loc, err := ip2loc.IP2loc(ip); err != nil {
-		log.Printf("%+v", err)
+		log.Printf("ip2locCN ip2loc.IP2loc %+v", err)
 	} else {
 		str = fmt.Sprintf("[%s %s %s]", loc.Country, loc.Province, loc.City)
 	}
@@ -230,9 +256,9 @@ func main() {
 				}
 				fmt.Println(c.Command.Name, "task: ", accessKey, c.String("domain"), c.String("ipaddr"))
 				if err := accessKey.CheckAndUpdateRecord(c.String("domain"), c.String("ipaddr"), c.Bool("ipv6")); err != nil {
-					log.Printf("%+v", err)
+					log.Printf("update Action CheckAndUpdateRecord %+v", err)
 				} else {
-					log.Println(c.String("domain"), c.String("ipaddr"), ip2locCN(c.String("ipaddr")))
+					log.Println(c.String("domain"), c.String("ipaddr"), ip2locCN(c.String("ipaddr"), c.Bool("ipv6")))
 				}
 				return nil
 			},
@@ -282,9 +308,9 @@ func main() {
 						autoip = getIP6()
 					}
 					if err := accessKey.CheckAndUpdateRecord(c.String("domain"), autoip, c.Bool("ipv6")); err != nil {
-						log.Printf("%+v", err)
+						log.Printf("auto-update Action CheckAndUpdateRecord %+v", err)
 					} else {
-						log.Println(c.String("domain"), autoip, ip2locCN(autoip))
+						log.Println(c.String("domain"), autoip, ip2locCN(autoip, c.Bool("ipv6")))
 					}
 					if redoDurtion < 10 {
 						break // Disable if N less than 10
@@ -315,7 +341,7 @@ func main() {
 					fmt.Println(ip)
 				} else {
 					ip := getIP()
-					fmt.Println(ip, ip2locCN(ip))
+					fmt.Println(ip, ip2locCN(ip, c.Bool("ipv6")))
 				}
 				return nil
 			},

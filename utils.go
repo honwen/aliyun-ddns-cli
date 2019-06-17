@@ -96,7 +96,7 @@ func wGet(url string, timeout time.Duration) (str string) {
 	return
 }
 
-func getDNS(domain string) (ip string) {
+func getDNS(domain string, ipv6 bool) (ip string) {
 	var (
 		maxServerCount = 5
 		dnsMap         = make(map[string]int, maxServerCount)
@@ -144,6 +144,25 @@ func getFisrtARecord(client *dns.Client, dnsServer, targetDomain string) (ip str
 	for _, rr := range r.Answer {
 		if a, ok := rr.(*dns.A); ok {
 			ip = a.A.String()
+			break
+		}
+	}
+	return
+}
+
+func getFisrtAAAARecord(client *dns.Client, dnsServer, targetDomain string) (ip string) {
+	if !strings.HasSuffix(targetDomain, ".") {
+		targetDomain += "."
+	}
+	msg := new(dns.Msg)
+	msg.SetQuestion(targetDomain, dns.TypeAAAA)
+	r, _, err := client.Exchange(msg, dnsServer)
+	if err != nil && (r == nil || r.Rcode != dns.RcodeSuccess) {
+		return
+	}
+	for _, rr := range r.Answer {
+		if a, ok := rr.(*dns.AAAA); ok {
+			ip = a.AAAA.String()
 			break
 		}
 	}
