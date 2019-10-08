@@ -17,13 +17,11 @@ const regxIP = `(25[0-5]|2[0-4]\d|[0-1]\d{2}|[1-9]?\d)\.(25[0-5]|2[0-4]\d|[0-1]\
 const regxIP6 = `([0-9A-Fa-f]{0,4}:){2,7}([0-9A-Fa-f]{1,4}$|((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.|$)){4})`
 
 var ipAPI = []string{
-	"http://www.net.cn/static/customercare/yourip.asp", "http://ddns.oray.com/checkip", "http://haoip.cn",
-	"http://cnc.synology.cn:81", "http://jpc.synology.com:81", "http://usc.synology.com:81",
-	"http://ip.6655.com/ip.aspx", "http://pv.sohu.com/cityjson?ie=utf-8", "http://whois.pconline.com.cn/ipJson.jsp",
+	"http://whatismyip.akamai.com/", "https://api-ipv4.ip.sb/ip", "http://myip.ipip.net/",
 }
 
 var ip6API = []string{
-	"http://ip6only.me/api", "http://v6.ipv6-test.com/api/myip.php", "https://v6.ident.me",
+	"https://api-ipv6.ip.sb/ip", "http://v6.ipv6-test.com/api/myip.php", "https://v6.ident.me",
 }
 
 var curlVer = []string{
