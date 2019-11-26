@@ -15,7 +15,7 @@ import (
 
 	dns "github.com/chenhw2/aliyun-ddns-cli/alidns"
 	"github.com/chenhw2/ip2loc"
-	"github.com/urfave/cli"
+	"gopkg.in/urfave/cli.v1"
 )
 
 // AccessKey from https://ak-console.aliyun.com/#/accesskey
