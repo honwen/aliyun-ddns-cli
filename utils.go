@@ -23,7 +23,7 @@ var ipAPI = []string{
 }
 
 var ip6API = []string{
-	"http://api-ipv6.ip.sb/ip", "http://ip6only.me/api/", "http://v6.ipv6-test.com/api/myip.php", "https://v6.ident.me",
+	"http://speed.neu6.edu.cn/getIP.php", "http://api-ipv6.ip.sb/ip", "http://ip6only.me/api/", "http://v6.ipv6-test.com/api/myip.php", "https://v6.ident.me",
 }
 
 var curlVer = []string{
