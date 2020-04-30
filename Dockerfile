@@ -4,7 +4,7 @@ RUN apk add --update git curl
 RUN set -ex && \
     go get -u -v \
         -ldflags "-X main.version=$(curl -sSL https://api.github.com/repos/chenhw2/aliyun-ddns-cli/commits/master | \
-            sed -n '{/sha/p; /date/p;}' | sed 's/.* \"//g' | cut -c1-10 | tr [:lower:] [:upper:] | sed 'N;s/\n/@/g' | head -1)" \
+            sed -n '{/sha/p; /date/p;}' | sed 's/.* \"//g' | cut -c1-10 | tr '[:lower:]' '[:upper:]' | sed 'N;s/\n/@/g' | head -1)" \
         github.com/chenhw2/aliyun-ddns-cli
 
 FROM chenhw2/alpine:base
