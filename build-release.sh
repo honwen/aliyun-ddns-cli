@@ -17,7 +17,8 @@ LDFLAGS="-X main.version=$VERSION -s -w"
 
 # X86
 OSES=(windows linux darwin freebsd)
-ARCHS=(amd64 386)
+# ARCHS=(amd64 386)
+ARCHS=(amd64)
 rm -rf ./release
 mkdir -p ./release
 for os in ${OSES[@]}; do
