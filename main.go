@@ -147,7 +147,7 @@ func ip2locCN(ip string) (str string) {
 	if loc, err := ip2loc.IP2loc(ip); err != nil {
 		log.Printf("%+v", err)
 	} else {
-		str = fmt.Sprintf("[%s %s %s]", loc.Country, loc.Province, loc.City)
+		str = fmt.Sprintf("[%s %s %s %s]", loc.CountryName, loc.RegionName, loc.CityName, loc.IspDomain)
 	}
 	return
 }
