@@ -13,9 +13,9 @@ import (
 	"strings"
 	"time"
 
-	dns "github.com/chenhw2/aliyun-ddns-cli/alidns"
-	"github.com/chenhw2/ip2loc"
-	"gopkg.in/urfave/cli.v1"
+	dns "github.com/honwen/aliyun-ddns-cli/alidns"
+	"github.com/honwen/ip2loc"
+	"github.com/urfave/cli"
 )
 
 // AccessKey from https://ak-console.aliyun.com/#/accesskey

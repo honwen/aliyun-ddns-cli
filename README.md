@@ -1,5 +1,5 @@
 ### Source
-- https://github.com/chenhw2/aliyun-ddns-cli
+- https://github.com/honwen/aliyun-ddns-cli
   
 ### Thanks (package alidns)
 - https://github.com/denverdino/aliyungo
@@ -20,7 +20,7 @@ $ docker run -d \
 ```
   
 ### Example (for Synology)
-- https://github.com/chenhw2/aliyun-ddns-cli/tree/master/example
+- https://github.com/honwen/aliyun-ddns-cli/tree/master/example
 
 ### Help
 ```
