@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/denverdino/aliyungo/common"
 	dns "github.com/honwen/aliyun-ddns-cli/alidns"
 	"github.com/honwen/ip2loc"
 	"github.com/urfave/cli"
@@ -41,14 +42,21 @@ func (ak AccessKey) String() string {
 }
 
 func (ak *AccessKey) ListRecord(domain string) (dnsRecords []dns.RecordTypeNew, err error) {
-	res, err := ak.getClient().DescribeDomainRecordsNew(
-		&dns.DescribeDomainRecordsNewArgs{
-			DomainName: domain,
-		})
-	if err != nil {
-		return
+	var res *dns.DescribeDomainRecordsNewResponse
+	for idx := 0; idx < 99; idx++ {
+		res, err = ak.getClient().DescribeDomainRecordsNew(
+			&dns.DescribeDomainRecordsNewArgs{
+				DomainName: domain,
+				Pagination: common.Pagination{PageNumber: idx, PageSize: 50},
+			})
+		if err != nil {
+			return
+		}
+		dnsRecords = append(dnsRecords, res.DomainRecords.Record...)
+		if len(dnsRecords) >= res.PaginationResult.TotalCount {
+			return
+		}
 	}
-	dnsRecords = res.DomainRecords.Record
 	return
 }
 
@@ -107,16 +115,22 @@ func (ak *AccessKey) CheckAndUpdateRecord(fulldomain, ipaddr string, ipv6 bool) 
 	if ipv6 {
 		recordType = "AAAA"
 	}
+	targetCnt := 0
 	var target *dns.RecordTypeNew
 	if dnsRecords, err := ak.ListRecord(domain); err == nil {
 		for i := range dnsRecords {
 			if dnsRecords[i].RR == rr && dnsRecords[i].Type == recordType {
 				target = &dnsRecords[i]
-				break
+				targetCnt++
 			}
 		}
 	} else {
 		return err
+	}
+
+	if targetCnt > 1 {
+		ak.DelRecord(fulldomain)
+		target = nil
 	}
 
 	if target == nil {
