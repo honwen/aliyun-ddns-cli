@@ -334,6 +334,26 @@ func main() {
 				return nil
 			},
 		},
+		{
+			Name:     "resolve",
+			Category: "GET-IP",
+			Usage:    fmt.Sprintf("      Get DNS-IPv4 Combine %d DNS Upstream", len(dnsUpStream)),
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "domain, d",
+					Usage: "Specific `DomainName`. like ddns.aliyun.com",
+				},
+			},
+			Action: func(c *cli.Context) error {
+				// fmt.Println(c.Command.Name, "task: ", c.Command.Usage)
+				ip := getDNS(c.String("domain"))
+				if len(ip) < 1 {
+					return nil
+				}
+				fmt.Println(ip, ip2locCN(ip))
+				return nil
+			},
+		},
 	}
 	app.Flags = []cli.Flag{
 		cli.StringFlag{

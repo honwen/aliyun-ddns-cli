@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
@@ -9,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/AdguardTeam/dnsproxy/upstream"
 	"github.com/miekg/dns"
 )
 
@@ -25,6 +25,10 @@ var ipAPI = []string{
 
 var ip6API = []string{
 	"http://speed.neu6.edu.cn/getIP.php", "http://v6.myip.la", "http://api-ipv6.ip.sb/ip", "http://ip6only.me/api/", "http://v6.ipv6-test.com/api/myip.php", "https://v6.ident.me",
+}
+
+var dnsUpStream = []string{
+	"tls://223.5.5.5", "tls://223.6.6.6", "https://223.5.5.5/dns-query", "https://223.6.6.6/dns-query", "https://dns.alidns.com/dns-query",
 }
 
 var curlVer = []string{
@@ -101,25 +105,25 @@ func wGet(url string, timeout time.Duration) (str string) {
 
 func getDNS(domain string) (ip string) {
 	var (
-		maxServerCount = 5
-		dnsMap         = make(map[string]int, maxServerCount)
-		cchan          = make(chan string, maxServerCount)
-		maxCount       = -1
-		udpClient      = &dns.Client{Net: "udp", Timeout: time.Second}
+		dnsMap   = make(map[string]int, len(dnsUpStream))
+		cchan    = make(chan string, len(dnsUpStream))
+		maxCount = -1
+		timeout  = 2000 * time.Millisecond
 	)
 
-	for i := 0; i < maxServerCount; i++ {
+	for i := 0; i < len(dnsUpStream); i++ {
 		go func(dns string) {
-			cchan <- getFisrtARecord(udpClient, dns, domain)
-		}(fmt.Sprintf("dns%d.hichina.com:53", rand.Intn(30)+1))
+			resolver, _ := upstream.AddressToUpstream(dns, upstream.Options{Timeout: timeout})
+			cchan <- getFisrtARecord(resolver, dns, domain)
+		}(dnsUpStream[i])
 	}
 
-	for i := 0; i < maxServerCount; i++ {
+	for i := 0; i < len(dnsUpStream); i++ {
 		v := <-cchan
 		if len(v) == 0 {
 			continue
 		}
-		if dnsMap[v] >= maxServerCount/2 {
+		if dnsMap[v] >= len(dnsUpStream)/2 {
 			return v
 		}
 		dnsMap[v]++
@@ -134,13 +138,13 @@ func getDNS(domain string) (ip string) {
 	return
 }
 
-func getFisrtARecord(client *dns.Client, dnsServer, targetDomain string) (ip string) {
+func getFisrtARecord(resolver upstream.Upstream, dnsServer, targetDomain string) (ip string) {
 	if !strings.HasSuffix(targetDomain, ".") {
 		targetDomain += "."
 	}
 	msg := new(dns.Msg)
 	msg.SetQuestion(targetDomain, dns.TypeA)
-	r, _, err := client.Exchange(msg, dnsServer)
+	r, err := resolver.Exchange(msg)
 	if err != nil && (r == nil || r.Rcode != dns.RcodeSuccess) {
 		return
 	}
