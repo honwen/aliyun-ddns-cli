@@ -103,7 +103,7 @@ func wGet(url string, timeout time.Duration) (str string) {
 	return
 }
 
-func getDNS(domain string) (ip string) {
+func getDNS(domain string, ipv6 bool) (ip string) {
 	var (
 		dnsMap   = make(map[string]int, len(dnsUpStream))
 		cchan    = make(chan string, len(dnsUpStream))
@@ -114,7 +114,11 @@ func getDNS(domain string) (ip string) {
 	for i := 0; i < len(dnsUpStream); i++ {
 		go func(dns string) {
 			resolver, _ := upstream.AddressToUpstream(dns, upstream.Options{Timeout: timeout})
-			cchan <- getFisrtARecord(resolver, dns, domain)
+			if ipv6 {
+				cchan <- getFisrtAAAARecord(resolver, dns, domain)
+			} else {
+				cchan <- getFisrtARecord(resolver, dns, domain)
+			}
 		}(dnsUpStream[i])
 	}
 
@@ -151,6 +155,25 @@ func getFisrtARecord(resolver upstream.Upstream, dnsServer, targetDomain string)
 	for _, rr := range r.Answer {
 		if a, ok := rr.(*dns.A); ok {
 			ip = a.A.String()
+			break
+		}
+	}
+	return
+}
+
+func getFisrtAAAARecord(resolver upstream.Upstream, dnsServer, targetDomain string) (ip string) {
+	if !strings.HasSuffix(targetDomain, ".") {
+		targetDomain += "."
+	}
+	msg := new(dns.Msg)
+	msg.SetQuestion(targetDomain, dns.TypeAAAA)
+	r, err := resolver.Exchange(msg)
+	if err != nil && (r == nil || r.Rcode != dns.RcodeSuccess) {
+		return
+	}
+	for _, rr := range r.Answer {
+		if a, ok := rr.(*dns.AAAA); ok {
+			ip = a.AAAA.String()
 			break
 		}
 	}

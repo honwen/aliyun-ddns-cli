@@ -105,7 +105,7 @@ func (ak *AccessKey) AddRecord(domain, rr, dmType, value string) (err error) {
 }
 
 func (ak *AccessKey) CheckAndUpdateRecord(fulldomain, ipaddr string, ipv6 bool) (err error) {
-	if getDNS(fulldomain) == ipaddr {
+	if getDNS(fulldomain, ipv6) == ipaddr {
 		return // Skip
 	}
 	rr := regexp.MustCompile(`\.[^\.]*`).ReplaceAllString(fulldomain, "")
@@ -343,14 +343,22 @@ func main() {
 					Name:  "domain, d",
 					Usage: "Specific `DomainName`. like ddns.aliyun.com",
 				},
+				cli.BoolFlag{
+					Name:  "ipv6, 6",
+					Usage: "IPv6",
+				},
 			},
 			Action: func(c *cli.Context) error {
 				// fmt.Println(c.Command.Name, "task: ", c.Command.Usage)
-				ip := getDNS(c.String("domain"))
+				ip := getDNS(c.String("domain"), c.Bool("ipv6"))
 				if len(ip) < 1 {
 					return nil
 				}
-				fmt.Println(ip, ip2locCN(ip))
+				if c.Bool("ipv6") {
+					fmt.Println(ip)
+				} else {
+					fmt.Println(ip, ip2locCN(ip))
+				}
 				return nil
 			},
 		},
