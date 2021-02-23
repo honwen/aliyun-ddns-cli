@@ -43,7 +43,7 @@ func (ak AccessKey) String() string {
 
 func (ak *AccessKey) ListRecord(domain string) (dnsRecords []dns.RecordTypeNew, err error) {
 	var res *dns.DescribeDomainRecordsNewResponse
-	for idx := 0; idx < 99; idx++ {
+	for idx := 1; idx <= 99; idx++ {
 		res, err = ak.getClient().DescribeDomainRecordsNew(
 			&dns.DescribeDomainRecordsNewArgs{
 				DomainName: domain,
@@ -191,7 +191,7 @@ func main() {
 					fmt.Printf("%+v", err)
 				} else {
 					for _, v := range dnsRecords {
-						fmt.Printf("%20s   %-6s %s\n", v.RR+`.`+v.DomainName, v.Type, v.Value)
+						fmt.Printf("%20s   %-8s %s\n", v.RR+`.`+v.DomainName, v.Type, v.Value)
 					}
 				}
 				return nil
