@@ -8,6 +8,7 @@ _obj
 _test
 .vscode/
 release/
+vendor/
 
 # Architecture specific extensions/prefixes
 *.[568vq]
