@@ -69,7 +69,7 @@ func (ak *AccessKey) DelRecord(fulldomain string) (err error) {
 		for i := range dnsRecords {
 			if dnsRecords[i].RR == rr {
 				target = &dnsRecords[i]
-				_, err = ak.getClient().DeleteDomainRecord(
+				_, _ = ak.getClient().DeleteDomainRecord(
 					&dns.DeleteDomainRecordArgs{
 						RecordId: target.RecordId,
 					},
@@ -212,10 +212,13 @@ func main() {
 					return err
 				}
 				// fmt.Println(c.Command.Name, "task: ", accessKey, c.String("domain"))
-				if err := accessKey.DelRecord(c.String("domain")); err != nil {
-					fmt.Printf("%+v", err)
-				} else {
-					fmt.Println(c.String("domain"), "Deleted")
+				domains := strings.Split(c.String("domain"), "/")
+				for idx, domain := range domains {
+					if err := accessKey.DelRecord(domain); err != nil {
+						fmt.Printf("%+v", err)
+					} else {
+						fmt.Println(idx, ": ", domain, "Deleted")
+					}
 				}
 				return nil
 			},
@@ -243,10 +246,14 @@ func main() {
 					return err
 				}
 				fmt.Println(c.Command.Name, "task: ", accessKey, c.String("domain"), c.String("ipaddr"))
-				if err := accessKey.CheckAndUpdateRecord(c.String("domain"), c.String("ipaddr"), c.Bool("ipv6")); err != nil {
-					log.Printf("%+v", err)
-				} else {
-					log.Println(c.String("domain"), c.String("ipaddr"), ip2locCN(c.String("ipaddr")))
+
+				domains := strings.Split(c.String("domain"), "/")
+				for idx, domain := range domains {
+					if err := accessKey.CheckAndUpdateRecord(domain, c.String("ipaddr"), c.Bool("ipv6")); err != nil {
+						log.Printf("%+v", err)
+					} else {
+						log.Println(idx, ": ", domain, c.String("ipaddr"), ip2locCN(c.String("ipaddr")))
+					}
 				}
 				return nil
 			},
@@ -295,11 +302,16 @@ func main() {
 					if c.Bool("ipv6") {
 						autoip = getIP6()
 					}
-					if err := accessKey.CheckAndUpdateRecord(c.String("domain"), autoip, c.Bool("ipv6")); err != nil {
-						log.Printf("%+v", err)
-					} else {
-						log.Println(c.String("domain"), autoip, ip2locCN(autoip))
+
+					domains := strings.Split(c.String("domain"), "/")
+					for idx, domain := range domains {
+						if err := accessKey.CheckAndUpdateRecord(domain, autoip, c.Bool("ipv6")); err != nil {
+							log.Printf("%+v", err)
+						} else {
+							log.Println(idx, ": ", domain, autoip, ip2locCN(autoip))
+						}
 					}
+					
 					if redoDurtion < 10 {
 						break // Disable if N less than 10
 					}

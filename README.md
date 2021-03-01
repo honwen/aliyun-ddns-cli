@@ -1,20 +1,19 @@
-### Source
+# Source
+|Host|Url|
+|:-|:-|
+|Github|https://github.com/honwen/aliyun-ddns-cli|
+|Docker|https://hub.docker.com/r/chenhw2/aliyun-ddns-cli|
 
-- https://github.com/honwen/aliyun-ddns-cli
+# Thanks
+Go Package: [alidns](https://github.com/denverdino/aliyungo)
 
-### Thanks (package alidns)
-
-- https://github.com/denverdino/aliyungo
-
-### Docker
-
-- https://hub.docker.com/r/chenhw2/aliyun-ddns-cli/
-
-### Usage
-
-```
+# Usage
+- 1.Get `AccessKeyID` and `AccessKeySecret` from your [Aliyun RAM Control Panel](https://ram.console.aliyun.com/manage/ak)
+- 2.Run this DDNS tool on your server.
+You can set multiple domains use param `--domain` with separator `/`. eg: `--domain ddns.a.com/ddns.b.com`
+#### Docker
+```bash
 $ docker pull chenhw2/aliyun-ddns-cli
-
 $ docker run -d \
     -e "AKID=[ALIYUN's AccessKey-ID]" \
     -e "AKSCT=[ALIYUN's AccessKey-Secret]" \
@@ -22,13 +21,23 @@ $ docker run -d \
     -e "REDO=600" \
     chenhw2/aliyun-ddns-cli
 ```
+or
+#### Bash
+```bash
+# Automatic get IP from public API
+aliddns --id ${AccessKeyID} --secret ${AccessKeySecret} \
+    auto-update --domain ddns.example.win
+# or
+# Manually set IP addr
+aliddns --id ${AccessKeyID} --secret ${AccessKeySecret} \
+    update --domain ddns.example.win \
+    --ipaddr $(ifconfig pppoe-wan | sed -n '2{s/[^0-9]*://;s/[^0-9.].*//p}')
+```
 
-### Example (for Synology)
+# Screenshot (for Synology)
+![Synology](https://github.com/honwen/aliyun-ddns-cli/raw/master/example/Synology_Docker.png)
 
-- https://github.com/honwen/aliyun-ddns-cli/tree/master/example
-
-### Help
-
+# Help
 ```
 $ docker run --rm chenhw2/aliyun-ddns-cli -h
 NAME:
@@ -60,15 +69,3 @@ GLOBAL OPTIONS:
    --help, -h                                 show help
    --version, -v                              print the version
 ```
-
-### CLI Example:
-
-```
-aliddns --id ${AccessKeyID} --secret ${AccessKeySecret} \
-    auto-update --domain ddns.example.win
-
-aliddns --id ${AccessKeyID} --secret ${AccessKeySecret} \
-    update --domain ddns.example.win \
-    --ipaddr $(ifconfig pppoe-wan | sed -n '2{s/[^0-9]*://;s/[^0-9.].*//p}')
-```
-

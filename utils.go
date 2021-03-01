@@ -62,7 +62,7 @@ func apiGetIP(ipAPI []string, regxIP string) (ip string) {
 	}
 	for i := 0; i < length; i++ {
 		v := <-cchan
-		if 0 == len(v) {
+		if len(v) == 0 {
 			continue
 		}
 		if ipMap[v]++; ipMap[v] >= length/2 {
@@ -77,7 +77,7 @@ func apiGetIP(ipAPI []string, regxIP string) (ip string) {
 	}
 
 	// Use First ipAPI as failsafe
-	if 0 == len(ip) {
+	if len(ip) == 0 {
 		ip = regexp.MustCompile(regxIP).FindString(wGet(ipAPI[0], 5*minTimeout))
 	}
 	return
@@ -96,7 +96,7 @@ func wGet(url string, timeout time.Duration) (str string) {
 	if err != nil {
 		return
 	}
-	body, err := ioutil.ReadAll(resp.Body)
+	body, _ := ioutil.ReadAll(resp.Body)
 	resp.Body.Close()
 	str = string(body)
 	// fmt.Println(url, regexp.MustCompile(regxIP).FindString(str))
