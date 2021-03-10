@@ -82,6 +82,29 @@ func (ak *AccessKey) DelRecord(fulldomain string) (err error) {
 	return
 }
 
+//end
+func (ak *AccessKey) DelRecord_1(subdomain string, maindomain string) (err error) {
+	rr := subdomain//regexp.MustCompile(`\.[^\.]*`).ReplaceAllString(fulldomain, "")
+	domain := maindomain//regexp.MustCompile(`^[^\.]*\.`).ReplaceAllString(fulldomain, "")
+	// fmt.Println(rr, domain)
+	var target *dns.RecordTypeNew
+	if dnsRecords, err := ak.ListRecord(domain); err == nil {
+		for i := range dnsRecords {
+			if dnsRecords[i].RR == rr {
+				target = &dnsRecords[i]
+				_, err = ak.getClient().DeleteDomainRecord(
+					&dns.DeleteDomainRecordArgs{
+						RecordId: target.RecordId,
+					},
+				)
+			}
+		}
+	} else {
+		return err
+	}
+	return
+}
+
 func (ak *AccessKey) UpdateRecord(recordID, rr, dmType, value string) (err error) {
 	_, err = ak.getClient().UpdateDomainRecord(
 		&dns.UpdateDomainRecordArgs{
@@ -148,6 +171,50 @@ func (ak *AccessKey) CheckAndUpdateRecord(fulldomain, ipaddr string, ipv6 bool) 
 	return err
 }
 
+func (ak *AccessKey) CheckAndUpdateRecord_1(subdomain string, maindomain string, ipaddr string, ipv6 bool) (err error) {
+	fulldomain := subdomain + "." + maindomain
+	if getDNS(fulldomain, ipv6) == ipaddr {
+		return // Skip
+	}
+	rr := subdomain//regexp.MustCompile(`\.[^\.]*`).ReplaceAllString(fulldomain, "")
+	domain := maindomain//regexp.MustCompile(`^[^\.]*\.`).ReplaceAllString(fulldomain, "")
+	// fmt.Println(rr, domain)
+	recordType := "A"
+	if ipv6 {
+		recordType = "AAAA"
+	}
+	targetCnt := 0
+	var target *dns.RecordTypeNew
+	if dnsRecords, err := ak.ListRecord(domain); err == nil {
+		for i := range dnsRecords {
+			if dnsRecords[i].RR == rr && dnsRecords[i].Type == recordType {
+				target = &dnsRecords[i]
+				targetCnt++
+			}
+		}
+	} else {
+		return err
+	}
+
+	if targetCnt > 1 {
+		ak.DelRecord_1(subdomain, maindomain)
+		target = nil
+	}
+
+	if target == nil {
+		err = ak.AddRecord(domain, rr, recordType, ipaddr)
+	} else if target.Value != ipaddr {
+		if target.Type != recordType {
+			return fmt.Errorf("record type error! oldType=%s, targetType=%s", target.Type, recordType)
+		}
+		err = ak.UpdateRecord(target.RecordId, target.RR, target.Type, ipaddr)
+	}
+	if err != nil && strings.Contains(err.Error(), `DomainRecordDuplicate`) {
+		ak.DelRecord_1(subdomain, maindomain)
+		return ak.CheckAndUpdateRecord_1(subdomain, maindomain, ipaddr, ipv6)
+	}
+	return err
+}
 var (
 	accessKey AccessKey
 	version   = "MISSING build version [git hash]"
@@ -251,6 +318,42 @@ func main() {
 				return nil
 			},
 		},
+		{
+			Name:     "update_1",
+			Category: "DDNS",
+			Usage:    "Update AliYun's DNS DomainRecords Record, Create Record if not exist",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "maindomain, D",
+					Usage: "Specific `Main domain name`. like aliyun.com from aliyun.com",
+				},
+				cli.StringFlag{
+					Name:  "subdomain, d",
+					Usage: "Specific `Sub Domain Name`. like ddns from ddns.aliyun.com",
+				},
+				cli.StringFlag{
+					Name:  "ipaddr, i",
+					Usage: "Specific `IP`. like 1.2.3.4",
+				},
+				cli.BoolFlag{
+					Name:  "ipv6, 6",
+					Usage: "update IPv6 address",
+				},
+			},
+			Action: func(c *cli.Context) error {
+				if err := appInit(c); err != nil {
+					return err
+				}
+				fmt.Println(c.Command.Name, "task: ", accessKey, c.String("subdomain"), c.String("maindomain"), c.String("ipaddr"))
+				if err := accessKey.CheckAndUpdateRecord_1(c.String("subdomain"), c.String("maindomain"), c.String("ipaddr"), c.Bool("ipv6")); err != nil {
+					log.Printf("%+v", err)
+				} else {
+					log.Println(c.String("subdomain"), c.String("maindomain"), c.String("ipaddr"), ip2locCN(c.String("ipaddr")))
+				}
+				return nil
+			},
+		},
+		// not modify auto-update
 		{
 			Name:     "auto-update",
 			Category: "DDNS",
