@@ -12,7 +12,7 @@
 
 ### Usage
 
-```
+```bash
 $ docker pull chenhw2/aliyun-ddns-cli
 
 $ docker run -d \
@@ -71,4 +71,3 @@ aliddns --id ${AccessKeyID} --secret ${AccessKeySecret} \
     update --domain ddns.example.win \
     --ipaddr $(ifconfig pppoe-wan | sed -n '2{s/[^0-9]*://;s/[^0-9.].*//p}')
 ```
-

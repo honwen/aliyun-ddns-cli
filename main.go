@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/asaskevich/govalidator"
 	"github.com/denverdino/aliyungo/common"
 	dns "github.com/honwen/aliyun-ddns-cli/alidns"
 	"github.com/honwen/ip2loc"
@@ -24,6 +25,40 @@ type AccessKey struct {
 	ID     string
 	Secret string
 	client *dns.Client
+}
+
+func splitDomain(fulldomain string) (rr, domain string) {
+	wildCard := false
+	if strings.HasPrefix(fulldomain, `*.`) {
+		wildCard = true
+		fulldomain = fulldomain[2:]
+	}
+
+	for len(fulldomain) > 0 && strings.HasSuffix(fulldomain, `.`) {
+		fulldomain = fulldomain[:len(fulldomain)-1]
+	}
+
+	subs := strings.Split(fulldomain, `.`)
+	if !govalidator.IsDNSName(fulldomain) || len(subs) < 2 {
+		log.Fatal("Not a Vaild Domain")
+	}
+
+	rrSubs := subs[:len(subs)-2]
+	domainSubs := subs[len(subs)-2:]
+
+	if wildCard {
+		rr = strings.Join(append([]string{`*`}, rrSubs...), `.`)
+	} else {
+		rr = strings.Join(rrSubs, `.`)
+	}
+
+	if len(rr) == 0 {
+		rr = `@`
+	}
+
+	domain = strings.Join(domainSubs, `.`)
+	// fmt.Println(rr, domain)
+	return
 }
 
 func (ak *AccessKey) getClient() *dns.Client {
@@ -42,9 +77,10 @@ func (ak AccessKey) String() string {
 }
 
 func (ak *AccessKey) ListRecord(domain string) (dnsRecords []dns.RecordTypeNew, err error) {
-	var res *dns.DescribeDomainRecordsNewResponse
+	_, domain = splitDomain(domain)
+	var resp *dns.DescribeDomainRecordsNewResponse
 	for idx := 1; idx <= 99; idx++ {
-		res, err = ak.getClient().DescribeDomainRecordsNew(
+		resp, err = ak.getClient().DescribeDomainRecordsNew(
 			&dns.DescribeDomainRecordsNewArgs{
 				DomainName: domain,
 				Pagination: common.Pagination{PageNumber: idx, PageSize: 50},
@@ -52,8 +88,8 @@ func (ak *AccessKey) ListRecord(domain string) (dnsRecords []dns.RecordTypeNew, 
 		if err != nil {
 			return
 		}
-		dnsRecords = append(dnsRecords, res.DomainRecords.Record...)
-		if len(dnsRecords) >= res.PaginationResult.TotalCount {
+		dnsRecords = append(dnsRecords, resp.DomainRecords.Record...)
+		if len(dnsRecords) >= resp.PaginationResult.TotalCount {
 			return
 		}
 	}
@@ -61,9 +97,7 @@ func (ak *AccessKey) ListRecord(domain string) (dnsRecords []dns.RecordTypeNew, 
 }
 
 func (ak *AccessKey) DelRecord(fulldomain string) (err error) {
-	rr := regexp.MustCompile(`\.[^\.]*`).ReplaceAllString(fulldomain, "")
-	domain := regexp.MustCompile(`^[^\.]*\.`).ReplaceAllString(fulldomain, "")
-	// fmt.Println(rr, domain)
+	rr, domain := splitDomain(fulldomain)
 	var target *dns.RecordTypeNew
 	if dnsRecords, err := ak.ListRecord(domain); err == nil {
 		for i := range dnsRecords {
@@ -105,12 +139,11 @@ func (ak *AccessKey) AddRecord(domain, rr, dmType, value string) (err error) {
 }
 
 func (ak *AccessKey) CheckAndUpdateRecord(fulldomain, ipaddr string, ipv6 bool) (err error) {
+	rr, domain := splitDomain(fulldomain)
+	fulldomain = strings.Join([]string{rr, domain}, `.`)
 	if getDNS(fulldomain, ipv6) == ipaddr {
 		return // Skip
 	}
-	rr := regexp.MustCompile(`\.[^\.]*`).ReplaceAllString(fulldomain, "")
-	domain := regexp.MustCompile(`^[^\.]*\.`).ReplaceAllString(fulldomain, "")
-	// fmt.Println(rr, domain)
 	recordType := "A"
 	if ipv6 {
 		recordType = "AAAA"
