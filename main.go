@@ -97,8 +97,7 @@ func (ak *AccessKey) ListRecord(domain string) (dnsRecords []dns.RecordTypeNew, 
 	return
 }
 
-func (ak *AccessKey) DelRecord(fulldomain string) (err error) {
-	rr, domain := splitDomain(fulldomain)
+func (ak *AccessKey) DelRecord(rr, domain string) (err error) {
 	var target *dns.RecordTypeNew
 	if dnsRecords, err := ak.ListRecord(domain); err == nil {
 		for i := range dnsRecords {
@@ -139,9 +138,8 @@ func (ak *AccessKey) AddRecord(domain, rr, dmType, value string) (err error) {
 	return err
 }
 
-func (ak *AccessKey) CheckAndUpdateRecord(fulldomain, ipaddr string, ipv6 bool) (err error) {
-	rr, domain := splitDomain(fulldomain)
-	fulldomain = strings.Join([]string{rr, domain}, `.`)
+func (ak *AccessKey) CheckAndUpdateRecord(rr, domain, ipaddr string, ipv6 bool) (err error) {
+	fulldomain := strings.Join([]string{rr, domain}, `.`)
 	if getDNS(fulldomain, ipv6) == ipaddr {
 		return // Skip
 	}
@@ -163,7 +161,7 @@ func (ak *AccessKey) CheckAndUpdateRecord(fulldomain, ipaddr string, ipv6 bool) 
 	}
 
 	if targetCnt > 1 {
-		ak.DelRecord(fulldomain)
+		ak.DelRecord(rr, domain)
 		target = nil
 	}
 
@@ -176,15 +174,15 @@ func (ak *AccessKey) CheckAndUpdateRecord(fulldomain, ipaddr string, ipv6 bool) 
 		err = ak.UpdateRecord(target.RecordId, target.RR, target.Type, ipaddr)
 	}
 	if err != nil && strings.Contains(err.Error(), `DomainRecordDuplicate`) {
-		ak.DelRecord(fulldomain)
-		return ak.CheckAndUpdateRecord(fulldomain, ipaddr, ipv6)
+		ak.DelRecord(rr, domain)
+		return ak.CheckAndUpdateRecord(rr, domain, ipaddr, ipv6)
 	}
 	return err
 }
 
 var (
-	accessKey AccessKey
-	version   = "MISSING build version [git hash]"
+	accessKey     AccessKey
+	VersionString = "MISSING build version [git hash]"
 )
 
 func init() {
@@ -204,7 +202,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "aliddns"
 	app.Usage = "aliyun-ddns-cli"
-	app.Version = fmt.Sprintf("Git:[%s] (%s)", strings.ToUpper(version), runtime.Version())
+	app.Version = fmt.Sprintf("Git:[%s] (%s)", strings.ToUpper(VersionString), runtime.Version())
 	app.Commands = []cli.Command{
 		{
 			Name:     "list",
@@ -246,7 +244,7 @@ func main() {
 					return err
 				}
 				// fmt.Println(c.Command.Name, "task: ", accessKey, c.String("domain"))
-				if err := accessKey.DelRecord(c.String("domain")); err != nil {
+				if err := accessKey.DelRecord(splitDomain(c.String("domain"))); err != nil {
 					fmt.Printf("%+v", err)
 				} else {
 					fmt.Println(c.String("domain"), "Deleted")
@@ -277,7 +275,8 @@ func main() {
 					return err
 				}
 				fmt.Println(c.Command.Name, "task: ", accessKey, c.String("domain"), c.String("ipaddr"))
-				if err := accessKey.CheckAndUpdateRecord(c.String("domain"), c.String("ipaddr"), c.Bool("ipv6")); err != nil {
+				rr, domain := splitDomain(c.String("domain"))
+				if err := accessKey.CheckAndUpdateRecord(rr, domain, c.String("ipaddr"), c.Bool("ipv6")); err != nil {
 					log.Printf("%+v", err)
 				} else {
 					log.Println(c.String("domain"), c.String("ipaddr"), ip2locCN(c.String("ipaddr")))
@@ -317,7 +316,7 @@ func main() {
 				redoDurtion := 0
 				if randomDelay {
 					// Print Version if exist
-					if !strings.HasPrefix(version, "MISSING") {
+					if !strings.HasPrefix(VersionString, "MISSING") {
 						fmt.Fprintf(os.Stderr, "%s %s\n", strings.ToUpper(c.App.Name), c.App.Version)
 					}
 					redoDurtion, _ = strconv.Atoi(redoDurtionStr[:len(redoDurtionStr)-1])
@@ -329,7 +328,8 @@ func main() {
 					if c.Bool("ipv6") {
 						autoip = getIP6()
 					}
-					if err := accessKey.CheckAndUpdateRecord(c.String("domain"), autoip, c.Bool("ipv6")); err != nil {
+					rr, domain := splitDomain(c.String("domain"))
+					if err := accessKey.CheckAndUpdateRecord(rr, domain, autoip, c.Bool("ipv6")); err != nil {
 						log.Printf("%+v", err)
 					} else {
 						log.Println(c.String("domain"), autoip, ip2locCN(autoip))

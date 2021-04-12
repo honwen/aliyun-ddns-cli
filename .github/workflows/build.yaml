@@ -1,12 +1,12 @@
 name: Build
 
-'on':
-  'push':
-    'tags':
-      - 'v*'
-    'branches':
-      - '*'
-  'pull_request':
+"on":
+  "push":
+    "tags":
+      - "v*"
+    "branches":
+      - "*"
+  "pull_request":
 
 jobs:
   build:
@@ -18,17 +18,18 @@ jobs:
 
       - uses: actions/setup-go@v2
         with:
-          go-version: 1.16.2
+          go-version: 1.16.3
 
       - name: Prepare environment
         run: |-
           RELEASE_VERSION="${GITHUB_REF##*/}"
           if [[ "${RELEASE_VERSION}" != v* ]]; then RELEASE_VERSION='dev'; fi
-          echo "RELEASE_VERSION=\"${RELEASE_VERSION}\"" >> $GITHUB_ENV
+          echo "RELEASE_VERSION=\"${RELEASE_VERSION}@${GITHUB_SHA:0:10}\"" | tee -a $GITHUB_ENV
           go mod vendor
 
       # Test
-      - run: go test .
+      - name: Unit Testing
+        run: go test .
 
       # Win
       - run: GOOS=windows GOARCH=386 VERSION=${RELEASE_VERSION} make release

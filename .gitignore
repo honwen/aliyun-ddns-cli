@@ -27,6 +27,7 @@ _testmain.go
 *.prof
 *.upx
 
+build/
 debug
 aliyun-ddns-cli
 aliddns*
