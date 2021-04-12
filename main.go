@@ -13,11 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/asaskevich/govalidator"
 	"github.com/denverdino/aliyungo/common"
 	dns "github.com/honwen/aliyun-ddns-cli/alidns"
-	"github.com/honwen/ip2loc"
-	"github.com/honwen/tldextract"
 	"github.com/urfave/cli"
 )
 
@@ -26,40 +23,6 @@ type AccessKey struct {
 	ID     string
 	Secret string
 	client *dns.Client
-}
-
-func splitDomain(fulldomain string) (rr, domain string) {
-	wildCard := false
-	if strings.HasPrefix(fulldomain, `*.`) {
-		wildCard = true
-		fulldomain = fulldomain[2:]
-	}
-
-	for len(fulldomain) > 0 && strings.HasSuffix(fulldomain, `.`) {
-		fulldomain = fulldomain[:len(fulldomain)-1]
-	}
-
-	domainInfo := tldextract.New().Extract(fulldomain)
-	if !govalidator.IsDNSName(fulldomain) || len(domainInfo.Tld) < 1 || len(domainInfo.Root) < 1 {
-		log.Fatal("Not a Vaild Domain")
-	}
-
-	domain = domainInfo.Root + `.` + domainInfo.Tld
-	rr = domainInfo.Sub
-	if wildCard {
-		if len(rr) == 0 {
-			rr = `*`
-		} else {
-			rr = `*.` + rr
-		}
-	}
-
-	if len(rr) == 0 {
-		rr = `@`
-	}
-
-	// fmt.Println(rr, domain)
-	return
 }
 
 func (ak *AccessKey) getClient() *dns.Client {
@@ -187,15 +150,6 @@ var (
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
-}
-
-func ip2locCN(ip string) (str string) {
-	if loc, err := ip2loc.IP2loc(ip); err != nil {
-		log.Printf("%+v", err)
-	} else {
-		str = fmt.Sprintf("[%s %s %s %s]", loc.CountryName, loc.RegionName, loc.CityName, loc.IspDomain)
-	}
-	return
 }
 
 func main() {

@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
+	"log"
 	"math/rand"
 	"net/http"
 	"regexp"
@@ -9,6 +11,9 @@ import (
 	"time"
 
 	"github.com/AdguardTeam/dnsproxy/upstream"
+	"github.com/AdguardTeam/golibs/utils"
+	"github.com/honwen/ip2loc"
+	"github.com/honwen/tldextract"
 	"github.com/miekg/dns"
 )
 
@@ -177,5 +182,48 @@ func getFisrtAAAARecord(resolver upstream.Upstream, dnsServer, targetDomain stri
 			break
 		}
 	}
+	return
+}
+
+func ip2locCN(ip string) (str string) {
+	if loc, err := ip2loc.IP2loc(ip); err != nil {
+		log.Printf("%+v", err)
+	} else {
+		str = fmt.Sprintf("[%s %s %s %s]", loc.CountryName, loc.RegionName, loc.CityName, loc.IspDomain)
+	}
+	return
+}
+
+func splitDomain(fulldomain string) (rr, domain string) {
+	wildCard := false
+	if strings.HasPrefix(fulldomain, `*.`) {
+		wildCard = true
+		fulldomain = fulldomain[2:]
+	}
+
+	for len(fulldomain) > 0 && strings.HasSuffix(fulldomain, `.`) {
+		fulldomain = fulldomain[:len(fulldomain)-1]
+	}
+
+	domainInfo := tldextract.New().Extract(fulldomain)
+	if utils.IsValidHostname(fulldomain+`.`) == nil || len(domainInfo.Tld) == 0 || len(domainInfo.Root) == 0 {
+		log.Fatal("Not a Vaild Domain")
+	}
+
+	domain = domainInfo.Root + `.` + domainInfo.Tld
+	rr = domainInfo.Sub
+	if wildCard {
+		if len(rr) == 0 {
+			rr = `*`
+		} else {
+			rr = `*.` + rr
+		}
+	}
+
+	if len(rr) == 0 {
+		rr = `@`
+	}
+
+	// fmt.Println(rr, domain)
 	return
 }
