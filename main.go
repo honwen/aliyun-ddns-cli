@@ -17,6 +17,7 @@ import (
 	"github.com/denverdino/aliyungo/common"
 	dns "github.com/honwen/aliyun-ddns-cli/alidns"
 	"github.com/honwen/ip2loc"
+	"github.com/honwen/tldextract"
 	"github.com/urfave/cli"
 )
 
@@ -38,25 +39,25 @@ func splitDomain(fulldomain string) (rr, domain string) {
 		fulldomain = fulldomain[:len(fulldomain)-1]
 	}
 
-	subs := strings.Split(fulldomain, `.`)
-	if !govalidator.IsDNSName(fulldomain) || len(subs) < 2 {
+	domainInfo := tldextract.New().Extract(fulldomain)
+	if !govalidator.IsDNSName(fulldomain) || len(domainInfo.Tld) < 1 || len(domainInfo.Root) < 1 {
 		log.Fatal("Not a Vaild Domain")
 	}
 
-	rrSubs := subs[:len(subs)-2]
-	domainSubs := subs[len(subs)-2:]
-
+	domain = domainInfo.Root + `.` + domainInfo.Tld
+	rr = domainInfo.Sub
 	if wildCard {
-		rr = strings.Join(append([]string{`*`}, rrSubs...), `.`)
-	} else {
-		rr = strings.Join(rrSubs, `.`)
+		if len(rr) == 0 {
+			rr = `*`
+		} else {
+			rr = `*.` + rr
+		}
 	}
 
 	if len(rr) == 0 {
 		rr = `@`
 	}
 
-	domain = strings.Join(domainSubs, `.`)
 	// fmt.Println(rr, domain)
 	return
 }
