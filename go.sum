@@ -7,8 +7,8 @@ dmitri.shuralyov.com/html/belt v0.0.0-20180602232347-f7d459c86be0/go.mod h1:JLBr
 dmitri.shuralyov.com/service/change v0.0.0-20181023043359-a85b471d5412/go.mod h1:a1inKt/atXimZ4Mv927x+r7UpyzRUf4emIoiiSC2TN4=
 dmitri.shuralyov.com/state v0.0.0-20180228185332-28bcc343414c/go.mod h1:0PRwlb0D6DFvNNtx+9ybjezNCa8XF0xaYcETyp6rHWU=
 git.apache.org/thrift.git v0.0.0-20180902110319-2566ecd5d999/go.mod h1:fPE2ZNJGynbRyZ4dJvy6G277gSllfV2HJqblrnkyeyg=
-github.com/AdguardTeam/dnsproxy v0.37.0 h1:/lcQleFox0iMGa8ft4lOWvwBkQmUDGVF5nDkIPRlZV4=
-github.com/AdguardTeam/dnsproxy v0.37.0/go.mod h1:tr8Nj4JxWWp30rsy4WlDAyWG4sRn4DqkNLmaOMlDxWo=
+github.com/AdguardTeam/dnsproxy v0.37.1 h1:vULyF1+xSI7vV99m8GD2hmOuCQrpu87awyeSe5qtFbA=
+github.com/AdguardTeam/dnsproxy v0.37.1/go.mod h1:xkJWEuTr550gPDmB9azsciKZzSXjf9wMn+Ji54PQ4gE=
 github.com/AdguardTeam/golibs v0.4.2/go.mod h1:skKsDKIBB7kkFflLJBpfGX+G8QFTx0WKUzB6TIgtUj4=
 github.com/AdguardTeam/golibs v0.4.4 h1:cM9UySQiYFW79zo5XRwnaIWVzfW4eNXmZktMrWbthpw=
 github.com/AdguardTeam/golibs v0.4.4/go.mod h1:skKsDKIBB7kkFflLJBpfGX+G8QFTx0WKUzB6TIgtUj4=
@@ -17,8 +17,8 @@ github.com/aead/chacha20 v0.0.0-20180709150244-8b13a72661da h1:KjTM2ks9d14ZYCvmH
 github.com/aead/chacha20 v0.0.0-20180709150244-8b13a72661da/go.mod h1:eHEWzANqSiWQsof+nXEI9bUVUyV6F53Fp89EuCh2EAA=
 github.com/aead/poly1305 v0.0.0-20180717145839-3fee0db0b635 h1:52m0LGchQBBVqJRyYYufQuIbVqRawmubW3OFGqK1ekw=
 github.com/aead/poly1305 v0.0.0-20180717145839-3fee0db0b635/go.mod h1:lmLxL+FV291OopO93Bwf9fQLQeLyt33VJRUg5VJ30us=
-github.com/ameshkov/dnscrypt/v2 v2.0.1 h1:igNVNM6NLBOqYUzHXaDUxn8i+wJXOsosY0/xEBirixA=
-github.com/ameshkov/dnscrypt/v2 v2.0.1/go.mod h1:nbZnxJt4edIPx2Haa8n2XtC2g5AWcsdQiSuXkNH8eDI=
+github.com/ameshkov/dnscrypt/v2 v2.1.3 h1:DG4Uf7LSDg6XDj9sp3maxh3Ur26jeGQaP5MeYosn6v0=
+github.com/ameshkov/dnscrypt/v2 v2.1.3/go.mod h1:+8SbPbVXpxxcUsgGi8eodkqWPo1MyNHxKYC8hDpqLSo=
 github.com/ameshkov/dnsstamps v1.0.1/go.mod h1:Ii3eUu73dx4Vw5O4wjzmT5+lkCwovjzaEZZ4gKyIH5A=
 github.com/ameshkov/dnsstamps v1.0.3 h1:Srzik+J9mivH1alRACTbys2xOxs0lRH9qnTA7Y1OYVo=
 github.com/ameshkov/dnsstamps v1.0.3/go.mod h1:Ii3eUu73dx4Vw5O4wjzmT5+lkCwovjzaEZZ4gKyIH5A=
@@ -86,10 +86,10 @@ github.com/googleapis/gax-go/v2 v2.0.3/go.mod h1:LLvjysVCY1JZeum8Z6l8qUty8fiNwE0
 github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1/go.mod h1:wJfORRmW1u3UXTncJ5qlYoELFm8eSnnEO6hX4iZ3EWY=
 github.com/gregjones/httpcache v0.0.0-20180305231024-9cad4c3443a7/go.mod h1:FecbI9+v66THATjSRHfNgh1IVFe/9kFxbXtjV0ctIMA=
 github.com/grpc-ecosystem/grpc-gateway v1.5.0/go.mod h1:RSKVYQBd5MCa4OVpNdGskqpgL2+G+NZTnrVHpWWfpdw=
-github.com/honwen/ip2loc v0.0.0-20210223032431-a9b8294f2699 h1:rfsIxAPw0Xs95cU8NzI+1KU63/nCz8DXV/S5TcroI94=
-github.com/honwen/ip2loc v0.0.0-20210223032431-a9b8294f2699/go.mod h1:h+v9UQSr7CbxtKtQvVBONzX+y0aa+UDI3Hl+PK13kIo=
-github.com/honwen/tldextract v0.0.0-20210412085753-3195483dcf4e h1:v19duu279BmIW4ck4oWYMhGn+Gq1rFQIvHR1usWo87E=
-github.com/honwen/tldextract v0.0.0-20210412085753-3195483dcf4e/go.mod h1:89LulaARVT8BtmLOXfwhIGkEICCKvlt5gUQ8HpSCAqo=
+github.com/honwen/ip2loc v0.1.0 h1:Y5UKVYf1QkV1DPHRTECEdvUWouCfAlgxq3nbF8ITLUQ=
+github.com/honwen/ip2loc v0.1.0/go.mod h1:4loWbEvIxSNNr6pDp2YfPnAnJN/SKN7LiHfFr0rHB9o=
+github.com/honwen/tldextract v0.1.0 h1:ebl2hs0pxhHZNKqTrWAwt+N9Hf+LI4NH5AUoATZ+v/I=
+github.com/honwen/tldextract v0.1.0/go.mod h1:89LulaARVT8BtmLOXfwhIGkEICCKvlt5gUQ8HpSCAqo=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
 github.com/jellevandenhooff/dkim v0.0.0-20150330215556-f50fe3d243e1/go.mod h1:E0B/fFc00Y+Rasa88328GlI/XbtyysCtTHZS8h7IrBU=
 github.com/jessevdk/go-flags v1.4.0/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
@@ -115,8 +115,7 @@ github.com/marten-seemann/qtls-go1-16 v0.1.3 h1:XEZ1xGorVy9u+lJq+WXNE+hiqRYLNvJG
 github.com/marten-seemann/qtls-go1-16 v0.1.3/go.mod h1:gNpI2Ol+lRS3WwSOtIUUtRwZEQMXjYK+dQSBFbethAk=
 github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5Ld7szi9bcBfOoFv/3dc6xSMkL2PC0=
 github.com/microcosm-cc/bluemonday v1.0.1/go.mod h1:hsXNsILzKxV+sX77C5b8FSuKF00vh2OMYv+xgHpAMF4=
-github.com/miekg/dns v1.1.29/go.mod h1:KNUDUusw/aVsxyTYZM1oqvCicbwhgbNgztCETuNZ7xM=
-github.com/miekg/dns v1.1.35/go.mod h1:KNUDUusw/aVsxyTYZM1oqvCicbwhgbNgztCETuNZ7xM=
+github.com/miekg/dns v1.1.40/go.mod h1:KNUDUusw/aVsxyTYZM1oqvCicbwhgbNgztCETuNZ7xM=
 github.com/miekg/dns v1.1.41 h1:WMszZWJG0XmzbK9FEmzH2TVcqYzFesusSIB41b8KHxY=
 github.com/miekg/dns v1.1.41/go.mod h1:p6aan82bvRIyn+zDIv9xYNUpwa73JcSh9BKwknJysuI=
 github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=
