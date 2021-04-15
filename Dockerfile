@@ -5,7 +5,7 @@ RUN apk add --update git curl
 ADD . $GOPATH/src/github.com/honwen/aliyun-ddns-cli
 RUN set -ex \
     && cd $GOPATH/src/github.com/honwen/aliyun-ddns-cli \
-    && go build -ldflags "-X main.version=$(curl -sSL https://api.github.com/repos/honwen/aliyun-ddns-cli/commits/master | \
+    && go build -ldflags "-X main.VersionString=$(curl -sSL https://api.github.com/repos/honwen/aliyun-ddns-cli/commits/master | \
             sed -n '{/sha/p; /date/p;}' | sed 's/.* \"//g' | cut -c1-10 | tr '[:lower:]' '[:upper:]' | sed 'N;s/\n/@/g' | head -1)" . \
     && mv aliyun-ddns-cli $GOPATH/bin/
 
