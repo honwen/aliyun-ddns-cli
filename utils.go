@@ -22,8 +22,8 @@ const regxIP = `(25[0-5]|2[0-4]\d|[0-1]\d{2}|[1-9]?\d)\.(25[0-5]|2[0-4]\d|[0-1]\
 const regxIP6 = `([0-9A-Fa-f]{0,4}:){2,7}([0-9A-Fa-f]{1,4}$|((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.|$)){4})`
 
 var ipAPI = []string{
-	"http://v4.myip.la", "http://www.net.cn/static/customercare/yourip.asp", "http://ddns.oray.com/checkip", "http://haoip.cn",
-	"http://members.3322.org/dyndns/getip", "http://ns1.dnspod.net:6666", "http://14.215.150.17:6666",
+	"http://www.net.cn/static/customercare/yourip.asp", "http://ddns.oray.com/checkip", "http://haoip.cn",
+	"http://members.3322.org/dyndns/getip", "http://ns1.dnspod.net:6666", "http://v4.myip.la",
 	"http://pv.sohu.com/cityjson?ie=utf-8", "http://whois.pconline.com.cn/ipJson.jsp",
 	"http://api-ipv4.ip.sb/ip", "http://ip-api.com/", "http://whatismyip.akamai.com/",
 }
@@ -155,6 +155,7 @@ func getFisrtARecord(resolver upstream.Upstream, dnsServer, targetDomain string)
 	msg.SetQuestion(targetDomain, dns.TypeA)
 	r, err := resolver.Exchange(msg)
 	if err != nil && (r == nil || r.Rcode != dns.RcodeSuccess) {
+		log.Printf("%+v", err)
 		return
 	}
 	for _, rr := range r.Answer {
@@ -174,6 +175,7 @@ func getFisrtAAAARecord(resolver upstream.Upstream, dnsServer, targetDomain stri
 	msg.SetQuestion(targetDomain, dns.TypeAAAA)
 	r, err := resolver.Exchange(msg)
 	if err != nil && (r == nil || r.Rcode != dns.RcodeSuccess) {
+		log.Printf("%+v", err)
 		return
 	}
 	for _, rr := range r.Answer {
@@ -190,6 +192,12 @@ func ip2locCN(ip string) (str string) {
 		log.Printf("%+v", err)
 	} else {
 		str = fmt.Sprintf("[%s %s %s %s]", loc.CountryName, loc.RegionName, loc.CityName, loc.IspDomain)
+		for strings.Contains(str, " ]") {
+			str = strings.ReplaceAll(str, " ]", "]")
+		}
+		for strings.Contains(str, "  ") {
+			str = strings.ReplaceAll(str, "  ", " ")
+		}
 	}
 	return
 }
@@ -208,6 +216,7 @@ func splitDomain(fulldomain string) (rr, domain string) {
 	domainInfo := tldextract.New().Extract(fulldomain)
 	if utils.IsValidHostname(fulldomain+`.`) == nil || len(domainInfo.Tld) == 0 || len(domainInfo.Root) == 0 {
 		log.Fatal("Not a Vaild Domain")
+		return
 	}
 
 	domain = domainInfo.Root + `.` + domainInfo.Tld

@@ -41,7 +41,9 @@ func (ak AccessKey) String() string {
 }
 
 func (ak *AccessKey) ListRecord(domain string) (dnsRecords []dns.RecordTypeNew, err error) {
-	_, domain = splitDomain(domain)
+	if strings.Count(domain, `.`) != 1 {
+		_, domain = splitDomain(domain)
+	}
 	var resp *dns.DescribeDomainRecordsNewResponse
 	for idx := 1; idx <= 99; idx++ {
 		resp, err = ak.getClient().DescribeDomainRecordsNew(
@@ -262,6 +264,7 @@ func main() {
 					return err
 				}
 				// fmt.Println(c.Command.Name, "task: ", accessKey, c.String("domain"), c.Int64("redo"))
+				rr, domain := splitDomain(c.String("domain"))
 				redoDurtionStr := c.String("redo")
 				if len(redoDurtionStr) > 0 && !regexp.MustCompile(`\d+[Rr]?$`).MatchString(redoDurtionStr) {
 					return errors.New(`redo format: [0-9]+[Rr]?$`)
@@ -282,11 +285,14 @@ func main() {
 					if c.Bool("ipv6") {
 						autoip = getIP6()
 					}
-					rr, domain := splitDomain(c.String("domain"))
-					if err := accessKey.CheckAndUpdateRecord(rr, domain, autoip, c.Bool("ipv6")); err != nil {
-						log.Printf("%+v", err)
+					if len(autoip) == 0 {
+						log.Printf("# Err-CheckAndUpdateRecord: [%s]", "IP is empty, PLZ check network")
 					} else {
-						log.Println(c.String("domain"), autoip, ip2locCN(autoip))
+						if err := accessKey.CheckAndUpdateRecord(rr, domain, autoip, c.Bool("ipv6")); err != nil {
+							log.Printf("# Err-CheckAndUpdateRecord: [%+v]", err)
+						} else {
+							log.Println(c.String("domain"), autoip, ip2locCN(autoip))
+						}
 					}
 					if redoDurtion < 10 {
 						break // Disable if N less than 10
