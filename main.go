@@ -41,9 +41,6 @@ func (ak AccessKey) String() string {
 }
 
 func (ak *AccessKey) ListRecord(domain string) (dnsRecords []dns.RecordTypeNew, err error) {
-	if strings.Count(domain, `.`) != 1 {
-		_, domain = splitDomain(domain)
-	}
 	var resp *dns.DescribeDomainRecordsNewResponse
 	for idx := 1; idx <= 99; idx++ {
 		resp, err = ak.getClient().DescribeDomainRecordsNew(
@@ -175,7 +172,8 @@ func main() {
 					return err
 				}
 				// fmt.Println(c.Command.Name, "task: ", accessKey, c.String("domain"))
-				if dnsRecords, err := accessKey.ListRecord(c.String("domain")); err != nil {
+				_, domain := splitDomain(c.String("domain"))
+				if dnsRecords, err := accessKey.ListRecord(domain); err != nil {
 					fmt.Printf("%+v", err)
 				} else {
 					for _, v := range dnsRecords {
