@@ -24,6 +24,7 @@ ENV AKID=1234567890 \
 
 CMD aliyun-ddns-cli \
     --ipapi ${IPAPI} \
+    ${IPV6:+-6} \
     auto-update \
     --domain ${DOMAIN} \
     --redo ${REDO}

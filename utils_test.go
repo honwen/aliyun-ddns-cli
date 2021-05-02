@@ -4,6 +4,8 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/honwen/golibs/cip"
+	"github.com/honwen/golibs/domain"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -30,82 +32,79 @@ func TestIp2locCN(t *testing.T) {
 }
 
 func TestGetIPv4(t *testing.T) {
-	ip4 := getIP()
-	assert.True(t, regexp.MustCompile(regxIP).MatchString(ip4) || len(ip4) == 0)
+	funcs["myip"] = cip.MyIPv4
+	ip4 := myip()
+	assert.True(t, regexp.MustCompile(cip.RegxIPv4).MatchString(ip4) || len(ip4) == 0)
 }
 
 func TestGetIPv6(t *testing.T) {
-	ip6 := getIP6()
-	assert.True(t, regexp.MustCompile(regxIP6).MatchString(ip6) || len(ip6) == 0)
+	funcs["myip"] = cip.MyIPv6
+	ip6 := myip()
+	assert.True(t, regexp.MustCompile(cip.RegxIPv6).MatchString(ip6) || len(ip6) == 0)
 }
 
-func TestGetDNSv4(t *testing.T) {
-	assert.Contains(t, []string{"8.8.8.8", "8.8.4.4"}, getDNS("dns.google", false))
-	assert.Contains(t, []string{"223.6.6.6", "223.5.5.5"}, getDNS("dns.alidns.com", false))
+func TestResloveIPv4(t *testing.T) {
+	funcs["reslove"] = cip.ResloveIPv4
+	assert.Contains(t, []string{"8.8.8.8", "8.8.4.4"}, reslove("dns.google"))
+	assert.Contains(t, []string{"223.6.6.6", "223.5.5.5"}, reslove("dns.alidns.com"))
 }
 
-func TestGetDNSv6(t *testing.T) {
-	assert.Contains(t, []string{"2001:4860:4860::8844", "2001:4860:4860::8888"}, getDNS("dns.google", true))
-	assert.Contains(t, []string{"2400:3200::1", "2400:3200:baba::1"}, getDNS("dns.alidns.com", true))
+func TestResloveIPv6(t *testing.T) {
+	funcs["reslove"] = cip.ResloveIPv6
+	assert.Contains(t, []string{"2001:4860:4860::8844", "2001:4860:4860::8888"}, reslove("dns.google"))
+	assert.Contains(t, []string{"2400:3200::1", "2400:3200:baba::1"}, reslove("dns.alidns.com"))
 }
-
-// func TestSplitDomainInVaild(t *testing.T) {
-// 	rr, domain := splitDomain("a.example.com.invaild")
-
-// 	assert.Equal(t, rr, "")
-// 	assert.Equal(t, domain, "")
-// }
 
 func TestSplitDomain001(t *testing.T) {
-	rr, domain := splitDomain("a.example.com")
+	rr, domain := domain.SplitDomainToRR("a.example.com")
 
 	assert.Equal(t, rr, "a")
 	assert.Equal(t, domain, "example.com")
 }
 
 func TestSplitDomain002(t *testing.T) {
-	rr, domain := splitDomain("example.com")
+	rr, domain := domain.SplitDomainToRR("example.com")
 
 	assert.Equal(t, rr, "@")
 	assert.Equal(t, domain, "example.com")
 }
 
 func TestSplitDomain003(t *testing.T) {
-	rr, domain := splitDomain("*.example.com")
+	rr, domain := domain.SplitDomainToRR("*.example.com")
 
 	assert.Equal(t, rr, "*")
 	assert.Equal(t, domain, "example.com")
 }
 
 func TestSplitDomain004(t *testing.T) {
-	rr, domain := splitDomain("*.a.example.com")
+	rr, domain := domain.SplitDomainToRR("*.a.example.com")
 
 	assert.Equal(t, rr, "*.a")
 	assert.Equal(t, domain, "example.com")
 }
 
 func TestSplitDomain005(t *testing.T) {
-	rr, domain := splitDomain("*.b.a.example.com")
+	rr, domain := domain.SplitDomainToRR("*.b.a.example.com")
 
 	assert.Equal(t, rr, "*.b.a")
 	assert.Equal(t, domain, "example.com")
 }
 func TestSplitDomain006(t *testing.T) {
-	rr, domain := splitDomain("a.example.co.kr")
+	rr, domain := domain.SplitDomainToRR("a.example.co.kr")
 
 	assert.Equal(t, rr, "a")
 	assert.Equal(t, domain, "example.co.kr")
 }
 
 func TestSplitDomain007(t *testing.T) {
-	rr, domain := splitDomain("*.a.example.co.kr")
+	rr, domain := domain.SplitDomainToRR("*.a.example.co.kr")
 
 	assert.Equal(t, rr, "*.a")
 	assert.Equal(t, domain, "example.co.kr")
 }
 
 func TestSplitDomain008(t *testing.T) {
-	rr, domain := splitDomain("example.co.kr")
+	rr, domain := domain.SplitDomainToRR("example.co.kr")
 
 	assert.Equal(t, rr, "@")
 	assert.Equal(t, domain, "example.co.kr")

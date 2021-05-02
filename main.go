@@ -15,6 +15,8 @@ import (
 
 	"github.com/denverdino/aliyungo/common"
 	dns "github.com/honwen/aliyun-ddns-cli/alidns"
+	"github.com/honwen/golibs/cip"
+	"github.com/honwen/golibs/domain"
 	"github.com/urfave/cli"
 )
 
@@ -100,14 +102,10 @@ func (ak *AccessKey) AddRecord(domain, rr, dmType, value string) (err error) {
 	return err
 }
 
-func (ak *AccessKey) CheckAndUpdateRecord(rr, domain, ipaddr string, ipv6 bool) (err error) {
+func (ak *AccessKey) CheckAndUpdateRecord(rr, domain, ipaddr, recordType string) (err error) {
 	fulldomain := strings.Join([]string{rr, domain}, `.`)
-	if getDNS(fulldomain, ipv6) == ipaddr {
+	if reslove(fulldomain) == ipaddr {
 		return // Skip
-	}
-	recordType := "A"
-	if ipv6 {
-		recordType = "AAAA"
 	}
 	targetCnt := 0
 	var target *dns.RecordTypeNew
@@ -137,7 +135,7 @@ func (ak *AccessKey) CheckAndUpdateRecord(rr, domain, ipaddr string, ipv6 bool) 
 	}
 	if err != nil && strings.Contains(err.Error(), `DomainRecordDuplicate`) {
 		ak.DelRecord(rr, domain)
-		return ak.CheckAndUpdateRecord(rr, domain, ipaddr, ipv6)
+		return ak.CheckAndUpdateRecord(rr, domain, ipaddr, recordType)
 	}
 	return err
 }
@@ -168,11 +166,11 @@ func main() {
 				},
 			},
 			Action: func(c *cli.Context) error {
-				if err := appInit(c); err != nil {
+				if err := appInit(c, true); err != nil {
 					return err
 				}
 				// fmt.Println(c.Command.Name, "task: ", accessKey, c.String("domain"))
-				_, domain := splitDomain(c.String("domain"))
+				_, domain := domain.SplitDomainToRR(c.String("domain"))
 				if dnsRecords, err := accessKey.ListRecord(domain); err != nil {
 					fmt.Printf("%+v", err)
 				} else {
@@ -194,11 +192,11 @@ func main() {
 				},
 			},
 			Action: func(c *cli.Context) error {
-				if err := appInit(c); err != nil {
+				if err := appInit(c, true); err != nil {
 					return err
 				}
 				// fmt.Println(c.Command.Name, "task: ", accessKey, c.String("domain"))
-				if err := accessKey.DelRecord(splitDomain(c.String("domain"))); err != nil {
+				if err := accessKey.DelRecord(domain.SplitDomainToRR(c.String("domain"))); err != nil {
 					fmt.Printf("%+v", err)
 				} else {
 					fmt.Println(c.String("domain"), "Deleted")
@@ -219,18 +217,18 @@ func main() {
 					Name:  "ipaddr, i",
 					Usage: "Specific `IP`. like 1.2.3.4",
 				},
-				cli.BoolFlag{
-					Name:  "ipv6, 6",
-					Usage: "update IPv6 address",
-				},
 			},
 			Action: func(c *cli.Context) error {
-				if err := appInit(c); err != nil {
+				if err := appInit(c, true); err != nil {
 					return err
 				}
 				fmt.Println(c.Command.Name, "task: ", accessKey, c.String("domain"), c.String("ipaddr"))
-				rr, domain := splitDomain(c.String("domain"))
-				if err := accessKey.CheckAndUpdateRecord(rr, domain, c.String("ipaddr"), c.Bool("ipv6")); err != nil {
+				rr, domain := domain.SplitDomainToRR(c.String("domain"))
+				recordType := "A"
+				if c.GlobalBool("ipv6") {
+					recordType = "AAAA"
+				}
+				if err := accessKey.CheckAndUpdateRecord(rr, domain, c.String("ipaddr"), recordType); err != nil {
 					log.Printf("%+v", err)
 				} else {
 					log.Println(c.String("domain"), c.String("ipaddr"), ip2locCN(c.String("ipaddr")))
@@ -252,17 +250,17 @@ func main() {
 					Value: "",
 					Usage: "redo Auto-Update, every N `Seconds`; Disable if N less than 10; End with [Rr] enable random delay: [N, 2N]",
 				},
-				cli.BoolFlag{
-					Name:  "ipv6, 6",
-					Usage: "update IPv6 address",
-				},
 			},
 			Action: func(c *cli.Context) error {
-				if err := appInit(c); err != nil {
+				if err := appInit(c, true); err != nil {
 					return err
 				}
 				// fmt.Println(c.Command.Name, "task: ", accessKey, c.String("domain"), c.Int64("redo"))
-				rr, domain := splitDomain(c.String("domain"))
+				rr, domain := domain.SplitDomainToRR(c.String("domain"))
+				recordType := "A"
+				if c.GlobalBool("ipv6") {
+					recordType = "AAAA"
+				}
 				redoDurtionStr := c.String("redo")
 				if len(redoDurtionStr) > 0 && !regexp.MustCompile(`\d+[Rr]?$`).MatchString(redoDurtionStr) {
 					return errors.New(`redo format: [0-9]+[Rr]?$`)
@@ -270,23 +268,20 @@ func main() {
 				randomDelay := regexp.MustCompile(`\d+[Rr]$`).MatchString(redoDurtionStr)
 				redoDurtion := 0
 				if randomDelay {
-					// Print Version if exist
-					if !strings.HasPrefix(VersionString, "MISSING") {
-						fmt.Fprintf(os.Stderr, "%s %s\n", strings.ToUpper(c.App.Name), c.App.Version)
-					}
 					redoDurtion, _ = strconv.Atoi(redoDurtionStr[:len(redoDurtionStr)-1])
 				} else {
 					redoDurtion, _ = strconv.Atoi(redoDurtionStr)
 				}
+				// Print Version if exist
+				if redoDurtion > 0 && !strings.HasPrefix(VersionString, "MISSING") {
+					fmt.Fprintf(os.Stderr, "%s %s\n", strings.ToUpper(c.App.Name), c.App.Version)
+				}
 				for {
-					autoip := getIP()
-					if c.Bool("ipv6") {
-						autoip = getIP6()
-					}
+					autoip := myip()
 					if len(autoip) == 0 {
 						log.Printf("# Err-CheckAndUpdateRecord: [%s]", "IP is empty, PLZ check network")
 					} else {
-						if err := accessKey.CheckAndUpdateRecord(rr, domain, autoip, c.Bool("ipv6")); err != nil {
+						if err := accessKey.CheckAndUpdateRecord(rr, domain, autoip, recordType); err != nil {
 							log.Printf("# Err-CheckAndUpdateRecord: [%+v]", err)
 						} else {
 							log.Println(c.String("domain"), autoip, ip2locCN(autoip))
@@ -307,50 +302,34 @@ func main() {
 		{
 			Name:     "getip",
 			Category: "GET-IP",
-			Usage:    fmt.Sprintf("      Get IP Combine %d different Web-API", len(ipAPI)),
-			Flags: []cli.Flag{
-				cli.BoolFlag{
-					Name:  "ipv6, 6",
-					Usage: "IPv6",
-				},
-			},
+			Usage:    fmt.Sprintf("      Get IP Combine 10+ different Web-API"),
 			Action: func(c *cli.Context) error {
-				// fmt.Println(c.Command.Name, "task: ", c.Command.Usage)
-				if c.Bool("ipv6") {
-					ip := getIP6()
-					fmt.Println(ip)
-				} else {
-					ip := getIP()
-					fmt.Println(ip, ip2locCN(ip))
+				if err := appInit(c, false); err != nil {
+					return err
 				}
+				// fmt.Println(c.Command.Name, "task: ", c.Command.Usage)
+				ip := myip()
+				fmt.Println(ip, ip2locCN(ip))
 				return nil
 			},
 		},
 		{
 			Name:     "resolve",
 			Category: "GET-IP",
-			Usage:    fmt.Sprintf("      Get DNS-IPv4 Combine %d DNS Upstream", len(dnsUpStream)),
+			Usage:    fmt.Sprintf("      Get DNS-IPv4 Combine 4+ DNS Upstream"),
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "domain, d",
 					Usage: "Specific `DomainName`. like ddns.aliyun.com",
 				},
-				cli.BoolFlag{
-					Name:  "ipv6, 6",
-					Usage: "IPv6",
-				},
 			},
 			Action: func(c *cli.Context) error {
+				if err := appInit(c, false); err != nil {
+					return err
+				}
 				// fmt.Println(c.Command.Name, "task: ", c.Command.Usage)
-				ip := getDNS(c.String("domain"), c.Bool("ipv6"))
-				if len(ip) < 1 {
-					return nil
-				}
-				if c.Bool("ipv6") {
-					fmt.Println(ip)
-				} else {
-					fmt.Println(ip, ip2locCN(ip))
-				}
+				ip := reslove(c.String("domain"))
+				fmt.Println(ip, ip2locCN(ip))
 				return nil
 			},
 		},
@@ -368,36 +347,53 @@ func main() {
 			Name:  "ipapi, api",
 			Usage: "Web-API to Get IP, like: http://myip.ipip.net",
 		},
+		cli.BoolFlag{
+			Name:  "ipv6, 6",
+			Usage: "IPv6",
+		},
 	}
 	app.Action = func(c *cli.Context) error {
-		return appInit(c)
+		return appInit(c, true)
 	}
 	app.Run(os.Args)
 }
 
-func appInit(c *cli.Context) error {
+func appInit(c *cli.Context, checkAccessKey bool) error {
 	akids := []string{c.GlobalString("access-key-id"), os.Getenv("AKID"), os.Getenv("AccessKeyID")}
 	akscts := []string{c.GlobalString("access-key-secret"), os.Getenv("AKSCT"), os.Getenv("AccessKeySecret")}
 	sort.Sort(sort.Reverse(sort.StringSlice(akids)))
 	sort.Sort(sort.Reverse(sort.StringSlice(akscts)))
 	accessKey.ID = akids[0]
 	accessKey.Secret = akscts[0]
-	if accessKey.getClient() == nil {
+	if checkAccessKey && accessKey.getClient() == nil {
 		cli.ShowAppHelp(c)
 		return errors.New("access-key is empty")
 	}
 
-	newIPAPI := make([]string, 0)
+	if c.GlobalBool("ipv6") {
+		funcs["myip"] = cip.MyIPv6
+		funcs["reslove"] = cip.ResloveIPv6
+	}
+
+	ipapi := []string{}
 	for _, api := range c.GlobalStringSlice("ipapi") {
 		if !regexp.MustCompile(`^https?://.*`).MatchString(api) {
 			api = "http://" + api
 		}
 		if regexp.MustCompile(`(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]`).MatchString(api) {
-			newIPAPI = append(newIPAPI, api)
+			ipapi = append(ipapi, api)
 		}
 	}
-	if len(newIPAPI) > 0 {
-		ipAPI = newIPAPI
+	if len(ipapi) > 0 {
+		regx := regexp.MustCompile(cip.RegxIPv4)
+		if c.GlobalBoolT("ipv6") {
+			regx = regexp.MustCompile(cip.RegxIPv6)
+		}
+		funcs["myip"] = func() string {
+			return cip.FastWGetWithVailder(ipapi, func(s string) string {
+				return regx.FindString((s))
+			})
+		}
 	}
 
 	return nil

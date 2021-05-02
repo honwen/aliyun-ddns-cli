@@ -50,13 +50,14 @@ COMMANDS:
      auto-update  Auto-Update AliYun's DNS DomainRecords Record, Get IP using its getip
 
    GET-IP:
-     getip          Get IP Combine 12 different Web-API
-     resolve        Get DNS-IPv4 Combine 5 DNS Upstream
+     getip          Get IP Combine 10+ different Web-API
+     resolve        Get DNS-IPv4 Combine 4+ DNS Upstream
 
 GLOBAL OPTIONS:
    --access-key-id value, --id value          AliYun's Access Key ID
    --access-key-secret value, --secret value  AliYun's Access Key Secret
    --ipapi value, --api value                 Web-API to Get IP, like: http://myip.ipip.net
+   --ipv6, -6                                 IPv6
    --help, -h                                 show help
    --version, -v                              print the version
 ```
