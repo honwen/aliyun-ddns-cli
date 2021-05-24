@@ -13,8 +13,8 @@ github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d/go.mod h1:ma
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/denverdino/aliyungo v0.0.0-20210425065611-55bee4942cba h1:3g+YC/AyMKyPBDTKKMxTHekNFhBZPSxa/ckOPjOJPuU=
-github.com/denverdino/aliyungo v0.0.0-20210425065611-55bee4942cba/go.mod h1:dV8lFg6daOBZbT6/BDGIz6Y3WFGn8juu6G+CQ6LHtl0=
+github.com/denverdino/aliyungo v0.0.0-20210518071019-eb3bbb144d8a h1:J9+NI0ywi1btTOYseLdmr/H3XxutbC4m2bU48kKpwVs=
+github.com/denverdino/aliyungo v0.0.0-20210518071019-eb3bbb144d8a/go.mod h1:dV8lFg6daOBZbT6/BDGIz6Y3WFGn8juu6G+CQ6LHtl0=
 github.com/fatih/color v1.10.0/go.mod h1:ELkj/draVOlAH/xkhN6mQ50Qd0MPOk5AAr3maGEBuJM=
 github.com/fatih/structs v1.1.0/go.mod h1:9NiDSp5zOcgEDl+j00MP/WkGVPOlPRLejGD8Ga6PJ7M=
 github.com/fsnotify/fsnotify v1.4.9/go.mod h1:znqG4EE+3YCdAaPaxE2ZRY/06pZUdp0tY4IgpuI1SZQ=
@@ -22,8 +22,8 @@ github.com/go-chi/chi v1.5.3/go.mod h1:Q8xfe6s3fjZyMr8ZTv5jL+vxhVaFyCq2s+RvSfzTD
 github.com/hashicorp/hcl v1.0.0/go.mod h1:E5yfLk+7swimpb2L/Alb/PJmXilQ/rhwaUYs4T20WEQ=
 github.com/honwen/golibs v0.1.4 h1:7B0gXElZex11CVfNs6p9jn7uj/DFroQgI4GIcrh9Wac=
 github.com/honwen/golibs v0.1.4/go.mod h1:BqdA1MZSiyB9msXACcDNxUn17DSReiIvUWARfpzPI30=
-github.com/honwen/ip2loc v0.1.1 h1:sLdnE6U2cbiDxY+uKxtBORqZILnspTWp742CpFJjvTQ=
-github.com/honwen/ip2loc v0.1.1/go.mod h1:4loWbEvIxSNNr6pDp2YfPnAnJN/SKN7LiHfFr0rHB9o=
+github.com/honwen/ip2loc v0.1.2 h1:YgIK6A6iBynOlh2tzYRKl8mGmFoHcPPwws5Q0Ar4lwM=
+github.com/honwen/ip2loc v0.1.2/go.mod h1:4loWbEvIxSNNr6pDp2YfPnAnJN/SKN7LiHfFr0rHB9o=
 github.com/joho/godotenv v1.3.0/go.mod h1:7hK45KPybAkOC6peb+G5yklZfMxEjkZhHbwpqxOKXbg=
 github.com/knadh/koanf v0.14.0/go.mod h1:H5mEFsTeWizwFXHKtsITL5ipsLTuAMQoGuQpp+1JL9U=
 github.com/mattn/go-colorable v0.1.8/go.mod h1:u6P/XSegPjTcexA+o6vUJrdnUu04hMope9wVRipJSqc=
