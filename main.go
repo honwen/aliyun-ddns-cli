@@ -22,9 +22,10 @@ import (
 
 // AccessKey from https://ak-console.aliyun.com/#/accesskey
 type AccessKey struct {
-	ID     string
-	Secret string
-	client *dns.Client
+	ID             string
+	Secret         string
+	client         *dns.Client
+	managedDomains []string
 }
 
 func (ak *AccessKey) getClient() *dns.Client {
@@ -40,6 +41,42 @@ func (ak *AccessKey) getClient() *dns.Client {
 
 func (ak AccessKey) String() string {
 	return fmt.Sprintf("Access Key: [ ID: %s ;\t Secret: %s ]", ak.ID, ak.Secret)
+}
+
+func (ak *AccessKey) ListManagedDomains() (domains []string, err error) {
+	var resp []dns.DomainType
+	resp, err = ak.getClient().DescribeDomains(
+		&dns.DescribeDomainsArgs{
+			Pagination: common.Pagination{PageSize: 50},
+		})
+	if err != nil {
+		return
+	}
+	domains = make([]string, len(resp))
+	for i, v := range resp {
+		domains[i] = v.DomainName
+	}
+	return
+}
+
+func (ak *AccessKey) AutocheckDomainRR(rr, domain string) (r, d string, err error) {
+	if contains(ak.managedDomains, domain) {
+		return rr, domain, nil
+	} else {
+		if !strings.Contains(rr, `.`) {
+			return "", "", fmt.Errorf("Domain [%s.%s] Not Managed", rr, domain)
+		} else {
+			rrs := strings.Split(rr, `.`)
+			for i := len(rrs) - 1; i > 0; i-- {
+				d = strings.Join(append(rrs[i:], domain), `.`)
+				if contains(ak.managedDomains, d) {
+					r = strings.Join(rrs[:i], `.`)
+					return
+				}
+			}
+		}
+	}
+	return "", "", fmt.Errorf("Domain [%s.%s] Not Managed", rr, domain)
 }
 
 func (ak *AccessKey) ListRecord(domain string) (dnsRecords []dns.RecordTypeNew, err error) {
@@ -170,7 +207,10 @@ func main() {
 					return err
 				}
 				// fmt.Println(c.Command.Name, "task: ", accessKey, c.String("domain"))
-				_, domain := domain.SplitDomainToRR(c.String("domain"))
+				domain := c.String("domain")
+				if !contains(accessKey.managedDomains, domain) {
+					return fmt.Errorf("Domain [%s] Not Managed", domain)
+				}
 				if dnsRecords, err := accessKey.ListRecord(domain); err != nil {
 					fmt.Printf("%+v", err)
 				} else {
@@ -196,7 +236,11 @@ func main() {
 					return err
 				}
 				// fmt.Println(c.Command.Name, "task: ", accessKey, c.String("domain"))
-				if err := accessKey.DelRecord(domain.SplitDomainToRR(c.String("domain"))); err != nil {
+				rr, domain, err := accessKey.AutocheckDomainRR(domain.SplitDomainToRR(c.String("domain")))
+				if err != nil {
+					return err
+				}
+				if err := accessKey.DelRecord(rr, domain); err != nil {
 					fmt.Printf("%+v", err)
 				} else {
 					fmt.Println(c.String("domain"), "Deleted")
@@ -222,8 +266,11 @@ func main() {
 				if err := appInit(c, true); err != nil {
 					return err
 				}
-				fmt.Println(c.Command.Name, "task: ", accessKey, c.String("domain"), c.String("ipaddr"))
-				rr, domain := domain.SplitDomainToRR(c.String("domain"))
+				// fmt.Println(c.Command.Name, "task: ", accessKey, c.String("domain"), c.String("ipaddr"))
+				rr, domain, err := accessKey.AutocheckDomainRR(domain.SplitDomainToRR(c.String("domain")))
+				if err != nil {
+					return err
+				}
 				recordType := "A"
 				if c.GlobalBool("ipv6") {
 					recordType = "AAAA"
@@ -256,7 +303,10 @@ func main() {
 					return err
 				}
 				// fmt.Println(c.Command.Name, "task: ", accessKey, c.String("domain"), c.Int64("redo"))
-				rr, domain := domain.SplitDomainToRR(c.String("domain"))
+				rr, domain, err := accessKey.AutocheckDomainRR(domain.SplitDomainToRR(c.String("domain")))
+				if err != nil {
+					return err
+				}
 				recordType := "A"
 				if c.GlobalBool("ipv6") {
 					recordType = "AAAA"
@@ -368,6 +418,13 @@ func appInit(c *cli.Context, checkAccessKey bool) error {
 	if checkAccessKey && accessKey.getClient() == nil {
 		cli.ShowAppHelp(c)
 		return errors.New("access-key is empty")
+	}
+	if domains, err := accessKey.ListManagedDomains(); err == nil {
+		// log.Println(domains)
+		accessKey.managedDomains = domains
+	} else {
+		cli.ShowAppHelp(c)
+		return errors.New("No Managed Domains")
 	}
 
 	if c.GlobalBool("ipv6") {
