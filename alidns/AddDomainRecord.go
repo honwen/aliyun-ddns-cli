@@ -13,6 +13,7 @@ type AddDomainRecordArgs struct {
 	Value      string
 
 	//optional
+	TTL  string
 	Line string
 }
 

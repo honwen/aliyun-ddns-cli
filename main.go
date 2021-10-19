@@ -117,29 +117,31 @@ func (ak *AccessKey) DelRecord(rr, domain string) (err error) {
 	return
 }
 
-func (ak *AccessKey) UpdateRecord(recordID, rr, dmType, value string) (err error) {
+func (ak *AccessKey) UpdateRecord(recordID, rr, dmType, value, ttl string) (err error) {
 	_, err = ak.getClient().UpdateDomainRecord(
 		&dns.UpdateDomainRecordArgs{
 			RecordId: recordID,
 			RR:       rr,
 			Value:    value,
 			Type:     dmType,
+			TTL:      ttl,
 		})
 	return
 }
 
-func (ak *AccessKey) AddRecord(domain, rr, dmType, value string) (err error) {
+func (ak *AccessKey) AddRecord(domain, rr, dmType, value, ttl string) (err error) {
 	_, err = ak.getClient().AddDomainRecord(
 		&dns.AddDomainRecordArgs{
 			DomainName: domain,
 			RR:         rr,
 			Type:       dmType,
 			Value:      value,
+			TTL:        ttl,
 		})
 	return err
 }
 
-func (ak *AccessKey) CheckAndUpdateRecord(rr, domain, ipaddr, recordType string) (err error) {
+func (ak *AccessKey) CheckAndUpdateRecord(rr, domain, ipaddr, recordType, ttl string) (err error) {
 	fulldomain := strings.Join([]string{rr, domain}, `.`)
 	if reslove(fulldomain) == ipaddr {
 		return // Skip
@@ -163,16 +165,16 @@ func (ak *AccessKey) CheckAndUpdateRecord(rr, domain, ipaddr, recordType string)
 	}
 
 	if target == nil {
-		err = ak.AddRecord(domain, rr, recordType, ipaddr)
+		err = ak.AddRecord(domain, rr, recordType, ipaddr, ttl)
 	} else if target.Value != ipaddr {
 		if target.Type != recordType {
 			return fmt.Errorf("record type error! oldType=%s, targetType=%s", target.Type, recordType)
 		}
-		err = ak.UpdateRecord(target.RecordId, target.RR, target.Type, ipaddr)
+		err = ak.UpdateRecord(target.RecordId, target.RR, target.Type, ipaddr, ttl)
 	}
 	if err != nil && strings.Contains(err.Error(), `DomainRecordDuplicate`) {
 		ak.DelRecord(rr, domain)
-		return ak.CheckAndUpdateRecord(rr, domain, ipaddr, recordType)
+		return ak.CheckAndUpdateRecord(rr, domain, ipaddr, recordType, ttl)
 	}
 	return err
 }
@@ -261,6 +263,11 @@ func main() {
 					Name:  "ipaddr, i",
 					Usage: "Specific `IP`. like 1.2.3.4",
 				},
+				cli.StringFlag{
+					Name:  "ttl, t",
+					Value: "",
+					Usage: "The resolution effective time is 600 seconds (10 minutes) by default.",
+				},
 			},
 			Action: func(c *cli.Context) error {
 				if err := appInit(c, true); err != nil {
@@ -275,7 +282,7 @@ func main() {
 				if c.GlobalBool("ipv6") {
 					recordType = "AAAA"
 				}
-				if err := accessKey.CheckAndUpdateRecord(rr, domain, c.String("ipaddr"), recordType); err != nil {
+				if err := accessKey.CheckAndUpdateRecord(rr, domain, c.String("ipaddr"), recordType, c.String("ttl")); err != nil {
 					log.Printf("%+v", err)
 				} else {
 					log.Println(c.String("domain"), c.String("ipaddr"), ip2locCN(c.String("ipaddr")))
@@ -296,6 +303,11 @@ func main() {
 					Name:  "redo, r",
 					Value: "",
 					Usage: "redo Auto-Update, every N `Seconds`; Disable if N less than 10; End with [Rr] enable random delay: [N, 2N]",
+				},
+				cli.StringFlag{
+					Name:  "ttl, t",
+					Value: "",
+					Usage: "The resolution effective time is 600 seconds (10 minutes) by default.",
 				},
 			},
 			Action: func(c *cli.Context) error {
@@ -331,7 +343,7 @@ func main() {
 					if len(autoip) == 0 {
 						log.Printf("# Err-CheckAndUpdateRecord: [%s]", "IP is empty, PLZ check network")
 					} else {
-						if err := accessKey.CheckAndUpdateRecord(rr, domain, autoip, recordType); err != nil {
+						if err := accessKey.CheckAndUpdateRecord(rr, domain, autoip, recordType, c.String("ttl")); err != nil {
 							log.Printf("# Err-CheckAndUpdateRecord: [%+v]", err)
 						} else {
 							log.Println(c.String("domain"), autoip, ip2locCN(autoip))
