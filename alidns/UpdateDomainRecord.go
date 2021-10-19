@@ -9,7 +9,7 @@ type UpdateDomainRecordArgs struct {
 	Value    string
 
 	//optional
-	TTL      int32
+	TTL      string
 	Priority int32
 	Line     string
 }
