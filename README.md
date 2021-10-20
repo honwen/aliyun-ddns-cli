@@ -20,6 +20,7 @@ $ docker run -d \
     -e "AKSCT=[ALIYUN's AccessKey-Secret]" \
     -e "DOMAIN=ddns.aliyun.win" \
     -e "REDO=600" \
+    -e "TTL=600" \
     chenhw2/aliyun-ddns-cli
 ```
 
