@@ -1,6 +1,7 @@
 package dns
 
 import (
+	"encoding/json"
 	"log"
 
 	"github.com/denverdino/aliyungo/common"
@@ -13,7 +14,7 @@ type AddDomainRecordArgs struct {
 	Value      string
 
 	//optional
-	TTL  string
+	TTL  json.Number
 	Line string
 }
 

@@ -17,11 +17,13 @@ ENV AKID=1234567890 \
     AKSCT=abcdefghijklmn \
     DOMAIN=ddns.example.win \
     IPAPI=[IPAPI-GROUP] \
-    REDO=555r
+    REDO=555r \
+    TTL=600
 
 CMD aliyun-ddns-cli \
     --ipapi ${IPAPI} \
     ${IPV6:+-6} \
     auto-update \
     --domain ${DOMAIN} \
-    --redo ${REDO}
+    --redo ${REDO} \
+    --ttl ${TTL}
