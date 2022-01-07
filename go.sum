@@ -21,8 +21,8 @@ github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d/go.mod h1:ma
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/denverdino/aliyungo v0.0.0-20210910083501-4f11020c0bfb h1:w0Y6orfArgN0EGUOXqa3heTmPwUzZS9oV79ddQqkVP4=
-github.com/denverdino/aliyungo v0.0.0-20210910083501-4f11020c0bfb/go.mod h1:dV8lFg6daOBZbT6/BDGIz6Y3WFGn8juu6G+CQ6LHtl0=
+github.com/denverdino/aliyungo v0.0.0-20211216041018-95e021eb8eb7 h1:3x/qbhudvljDh48e2LORoL0Id2mXG7GkcK0rSf3qdHA=
+github.com/denverdino/aliyungo v0.0.0-20211216041018-95e021eb8eb7/go.mod h1:VVxx1gyGhdt369208nKOYLI0PVgrZqbU+EuWBZJQ1ZQ=
 github.com/fatih/color v1.10.0/go.mod h1:ELkj/draVOlAH/xkhN6mQ50Qd0MPOk5AAr3maGEBuJM=
 github.com/fatih/structs v1.1.0/go.mod h1:9NiDSp5zOcgEDl+j00MP/WkGVPOlPRLejGD8Ga6PJ7M=
 github.com/fsnotify/fsnotify v1.4.9/go.mod h1:znqG4EE+3YCdAaPaxE2ZRY/06pZUdp0tY4IgpuI1SZQ=
@@ -30,8 +30,8 @@ github.com/go-chi/chi v1.5.3/go.mod h1:Q8xfe6s3fjZyMr8ZTv5jL+vxhVaFyCq2s+RvSfzTD
 github.com/hashicorp/hcl v1.0.0/go.mod h1:E5yfLk+7swimpb2L/Alb/PJmXilQ/rhwaUYs4T20WEQ=
 github.com/honwen/golibs v0.2.5 h1:eU+HP5pgVeR0uAiytNZBalEWXUZ7PlXkCYQDLT9nCdg=
 github.com/honwen/golibs v0.2.5/go.mod h1:H0e+TwcqQtJifgabzZ9BU06GUa2dX1VCzLesnTpEGlA=
-github.com/honwen/ip2loc v0.1.5 h1:4MSy97er5X4wFhWSeduNq1ugy/7aZM92Gi7cQVgeS9U=
-github.com/honwen/ip2loc v0.1.5/go.mod h1:4loWbEvIxSNNr6pDp2YfPnAnJN/SKN7LiHfFr0rHB9o=
+github.com/honwen/ip2loc v0.2.0 h1:iFGR7kX0/Ss4Q2UkDcht4CqkqeOg0+vva7ftaEL/lhQ=
+github.com/honwen/ip2loc v0.2.0/go.mod h1:4loWbEvIxSNNr6pDp2YfPnAnJN/SKN7LiHfFr0rHB9o=
 github.com/jessevdk/go-flags v1.4.0/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
 github.com/joho/godotenv v1.3.0/go.mod h1:7hK45KPybAkOC6peb+G5yklZfMxEjkZhHbwpqxOKXbg=
 github.com/knadh/koanf v0.14.0/go.mod h1:H5mEFsTeWizwFXHKtsITL5ipsLTuAMQoGuQpp+1JL9U=
