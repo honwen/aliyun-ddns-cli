@@ -21,8 +21,8 @@ github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d/go.mod h1:ma
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/denverdino/aliyungo v0.0.0-20211216041018-95e021eb8eb7 h1:3x/qbhudvljDh48e2LORoL0Id2mXG7GkcK0rSf3qdHA=
-github.com/denverdino/aliyungo v0.0.0-20211216041018-95e021eb8eb7/go.mod h1:VVxx1gyGhdt369208nKOYLI0PVgrZqbU+EuWBZJQ1ZQ=
+github.com/denverdino/aliyungo v0.0.0-20220218060649-7450266b1c04 h1:cM8K5uXYMxNMmoh1ogXr/aa3LtbT7pvWQhQLOqpTM84=
+github.com/denverdino/aliyungo v0.0.0-20220218060649-7450266b1c04/go.mod h1:VVxx1gyGhdt369208nKOYLI0PVgrZqbU+EuWBZJQ1ZQ=
 github.com/fatih/color v1.10.0/go.mod h1:ELkj/draVOlAH/xkhN6mQ50Qd0MPOk5AAr3maGEBuJM=
 github.com/fatih/structs v1.1.0/go.mod h1:9NiDSp5zOcgEDl+j00MP/WkGVPOlPRLejGD8Ga6PJ7M=
 github.com/fsnotify/fsnotify v1.4.9/go.mod h1:znqG4EE+3YCdAaPaxE2ZRY/06pZUdp0tY4IgpuI1SZQ=

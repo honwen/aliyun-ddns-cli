@@ -12,7 +12,7 @@
 
 ### Usage
 
-```bash
+```shell
 $ docker pull chenhw2/aliyun-ddns-cli
 
 $ docker run -d \
@@ -30,7 +30,7 @@ $ docker run -d \
 
 ### Help
 
-```
+```shell
 $ docker run --rm chenhw2/aliyun-ddns-cli -h
 NAME:
    aliddns - aliyun-ddns-cli
@@ -65,7 +65,7 @@ GLOBAL OPTIONS:
 
 ### CLI Example:
 
-```
+```shell
 aliddns --id ${AccessKeyID} --secret ${AccessKeySecret} \
     auto-update --domain ddns.example.win
 
