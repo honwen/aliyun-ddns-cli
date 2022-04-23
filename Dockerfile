@@ -4,7 +4,8 @@ ADD . .
 RUN set -ex \
     && curl -sSL https://api.github.com/repos/honwen/aliyun-ddns-cli/commits/master | sed -n '{/sha/p; /date/p;}' | sed 's/.* \"//g' | cut -c1-10 | tr '[:lower:]' '[:upper:]' | sed 'N;s/\n/@/g' | head -n1 | tee .version \
     && go mod vendor \
-    && GOOS=linux GOARCH=amd64 VERSION=$(cat .version) make release
+    && GOOS=linux GOARCH=amd64 VERSION=$(cat .version) make release \
+    && /builder/build/linux-amd64/aliddns -v
 
 
 FROM chenhw2/alpine:base
