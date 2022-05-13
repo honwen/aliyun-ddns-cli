@@ -4,8 +4,8 @@ go 1.18
 
 require (
 	github.com/denverdino/aliyungo v0.0.0-20220419071826-816031062a6e
-	github.com/honwen/golibs v0.3.1
-	github.com/honwen/ip2loc v0.2.2
+	github.com/honwen/golibs v0.3.2
+	github.com/honwen/ip2loc v0.2.3
 	github.com/stretchr/testify v1.7.1
 	github.com/urfave/cli v1.22.5
 )

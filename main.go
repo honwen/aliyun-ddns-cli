@@ -382,8 +382,9 @@ func main() {
 			Usage:    fmt.Sprintf("      Get DNS-IPv4 Combine 4+ DNS Upstream"),
 			Flags: []cli.Flag{
 				cli.StringFlag{
-					Name:  "domain, d",
-					Usage: "Specific `DomainName`. like ddns.aliyun.com",
+					Name:     "domain, d",
+					Required: true,
+					Usage:    "Specific `DomainName`. like ddns.aliyun.com",
 				},
 			},
 			Action: func(c *cli.Context) error {
@@ -428,16 +429,18 @@ func appInit(c *cli.Context, checkAccessKey bool) error {
 	sort.Sort(sort.Reverse(sort.StringSlice(akscts)))
 	accessKey.ID = akids[0]
 	accessKey.Secret = akscts[0]
-	if checkAccessKey && accessKey.getClient() == nil {
-		cli.ShowAppHelp(c)
-		return errors.New("access-key is empty")
-	}
-	if domains, err := accessKey.ListManagedDomains(); err == nil {
-		// log.Println(domains)
-		accessKey.managedDomains = domains
-	} else {
-		cli.ShowAppHelp(c)
-		return errors.New("No Managed Domains")
+	if checkAccessKey {
+		if accessKey.getClient() == nil {
+			cli.ShowAppHelp(c)
+			return errors.New("access-key is empty")
+		}
+		if domains, err := accessKey.ListManagedDomains(); err == nil {
+			// log.Println(domains)
+			accessKey.managedDomains = domains
+		} else {
+			cli.ShowAppHelp(c)
+			return errors.New("No Managed Domains")
+		}
 	}
 
 	if c.GlobalBool("ipv6") {
