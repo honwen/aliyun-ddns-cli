@@ -65,7 +65,7 @@ func (ak *AccessKey) AutocheckDomainRR(rr, domain string) (r, d string, err erro
 		return rr, domain, nil
 	} else {
 		if !strings.Contains(rr, `.`) {
-			return "", "", fmt.Errorf("Domain [%s.%s] Not Managed", rr, domain)
+			return "", "", fmt.Errorf("domain [%s.%s] Not Managed", rr, domain)
 		} else {
 			rrs := strings.Split(rr, `.`)
 			for i := len(rrs) - 1; i > 0; i-- {
@@ -77,7 +77,7 @@ func (ak *AccessKey) AutocheckDomainRR(rr, domain string) (r, d string, err erro
 			}
 		}
 	}
-	return "", "", fmt.Errorf("Domain [%s.%s] Not Managed", rr, domain)
+	return "", "", fmt.Errorf("domain [%s.%s] Not Managed", rr, domain)
 }
 
 func (ak *AccessKey) ListRecord(domain string) (dnsRecords []dns.RecordTypeNew, err error) {
@@ -110,6 +110,9 @@ func (ak *AccessKey) DelRecord(rr, domain string) (err error) {
 						RecordId: target.RecordId,
 					},
 				)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	} else {
@@ -144,7 +147,11 @@ func (ak *AccessKey) AddRecord(domain, rr, dmType, value string, ttl int) (err e
 
 func (ak *AccessKey) CheckAndUpdateRecord(rr, domain, ipaddr, recordType string, ttl int) (err error) {
 	fulldomain := strings.Join([]string{rr, domain}, `.`)
-	if reslove(fulldomain) == ipaddr {
+	resloved := reslove(fulldomain)
+	if len(resloved) == 0 {
+		return fmt.Errorf("domain[%s] reslove empty, PLZ check network", fulldomain)
+	}
+	if resloved == ipaddr {
 		return // Skip
 	}
 	targetCnt := 0
@@ -212,7 +219,7 @@ func main() {
 				// fmt.Println(c.Command.Name, "task: ", accessKey, c.String("domain"))
 				domain := c.String("domain")
 				if !contains(accessKey.managedDomains, domain) {
-					return fmt.Errorf("Domain [%s] Not Managed", domain)
+					return fmt.Errorf("domain [%s] Not Managed", domain)
 				}
 				if dnsRecords, err := accessKey.ListRecord(domain); err != nil {
 					fmt.Printf("%+v", err)
@@ -365,7 +372,7 @@ func main() {
 		{
 			Name:     "getip",
 			Category: "GET-IP",
-			Usage:    fmt.Sprintf("      Get IP Combine 10+ different Web-API"),
+			Usage:    "      Get IP Combine 10+ different Web-API",
 			Action: func(c *cli.Context) error {
 				if err := appInit(c, false); err != nil {
 					return err
@@ -379,7 +386,7 @@ func main() {
 		{
 			Name:     "resolve",
 			Category: "GET-IP",
-			Usage:    fmt.Sprintf("      Get DNS-IPv4 Combine 4+ DNS Upstream"),
+			Usage:    "      Get DNS-IPv4 Combine 4+ DNS Upstream",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:     "domain, d",
@@ -439,7 +446,7 @@ func appInit(c *cli.Context, checkAccessKey bool) error {
 			accessKey.managedDomains = domains
 		} else {
 			cli.ShowAppHelp(c)
-			return errors.New("No Managed Domains")
+			return errors.New("no Managed Domains")
 		}
 	}
 

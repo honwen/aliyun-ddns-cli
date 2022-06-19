@@ -1,6 +1,6 @@
 module github.com/honwen/aliyun-ddns-cli
 
-go 1.18
+go 1.17
 
 require (
 	github.com/denverdino/aliyungo v0.0.0-20220610083100-ab5f747cb559

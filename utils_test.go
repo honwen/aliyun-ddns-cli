@@ -10,6 +10,7 @@ import (
 )
 
 func TestIp2locCN(t *testing.T) {
+	got.T(t).Eq(ip2locCN(""), "")
 	got.T(t).Eq(ip2locCN("202.96.128.86"), "[中国 广东 广州 电信]")
 	got.T(t).Eq(ip2locCN("202.96.209.133"), "[中国 上海 上海 电信]")
 	got.T(t).Eq(ip2locCN("219.141.136.10"), "[中国 北京 北京 电信]")
