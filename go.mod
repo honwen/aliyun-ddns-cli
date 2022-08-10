@@ -6,9 +6,9 @@ require (
 	// locked before tracing/logging https://github.com/denverdino/aliyungo/commits/master/go.mod
 	github.com/denverdino/aliyungo v0.0.0-20220321085828-46dabbd9e212
 	github.com/honwen/golibs v0.4.0
-	github.com/honwen/ip2loc v0.2.4
+	github.com/honwen/ip2loc v0.2.5
 	github.com/urfave/cli v1.22.9
-	github.com/ysmood/got v0.31.2
+	github.com/ysmood/got v0.31.3
 )
 
 require (
