@@ -422,7 +422,7 @@ func main() {
 		},
 		cli.StringSliceFlag{
 			Name:  "ipapi, api",
-			Usage: "Web-API to Get IP, like: http://myip.ipip.net",
+			Usage: "Web-API to Get IP, like: http://v6r.ipip.net",
 		},
 		cli.BoolFlag{
 			Name:  "ipv6, 6",

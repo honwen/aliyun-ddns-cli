@@ -39,7 +39,7 @@ USAGE:
    aliyun-ddns-cli [global options] command [command options] [arguments...]
 
 VERSION:
-   Git:[MISSING BUILD VERSION [GIT HASH]] (go1.16)
+   Git:[MISSING BUILD VERSION [GIT HASH]] (go1.19)
 
 COMMANDS:
    help, h  Shows a list of commands or help for one command
@@ -57,7 +57,7 @@ COMMANDS:
 GLOBAL OPTIONS:
    --access-key-id value, --id value          AliYun's Access Key ID
    --access-key-secret value, --secret value  AliYun's Access Key Secret
-   --ipapi value, --api value                 Web-API to Get IP, like: http://myip.ipip.net
+   --ipapi value, --api value                 Web-API to Get IP, like: http://v6r.ipip.net
    --ipv6, -6                                 IPv6
    --help, -h                                 show help
    --version, -v                              print the version
