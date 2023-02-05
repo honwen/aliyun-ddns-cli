@@ -1,13 +1,13 @@
 module github.com/honwen/aliyun-ddns-cli
 
-go 1.19
+go 1.20
 
 require (
 	// locked before tracing/logging https://github.com/denverdino/aliyungo/commits/master/go.mod
 	github.com/denverdino/aliyungo v0.0.0-20220321085828-46dabbd9e212
 	github.com/honwen/golibs v0.4.3
-	github.com/honwen/ip2loc v0.2.6
-	github.com/urfave/cli v1.22.10
+	github.com/honwen/ip2loc v0.2.7
+	github.com/urfave/cli v1.22.12
 	github.com/ysmood/got v0.32.0
 )
 
@@ -20,18 +20,18 @@ require (
 	github.com/ameshkov/dnscrypt/v2 v2.2.5 // indirect
 	github.com/ameshkov/dnsstamps v1.0.3 // indirect
 	github.com/andybalholm/cascadia v1.3.1 // indirect
-	github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d // indirect
+	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0 // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/google/pprof v0.0.0-20221219190121-3cb0bae90811 // indirect
-	github.com/lucas-clemente/quic-go v0.31.1 // indirect
-	github.com/marten-seemann/qtls-go1-18 v0.1.4 // indirect
-	github.com/marten-seemann/qtls-go1-19 v0.1.2 // indirect
 	github.com/miekg/dns v1.1.50 // indirect
 	github.com/mr-karan/doggo v0.5.5 // indirect
 	github.com/onsi/ginkgo/v2 v2.6.1 // indirect
-	github.com/russross/blackfriday/v2 v2.0.1 // indirect
-	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
+	github.com/quic-go/qtls-go1-18 v0.2.0 // indirect
+	github.com/quic-go/qtls-go1-19 v0.2.0 // indirect
+	github.com/quic-go/qtls-go1-20 v0.1.0 // indirect
+	github.com/quic-go/quic-go v0.32.0 // indirect
+	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	golang.org/x/crypto v0.4.0 // indirect
@@ -42,3 +42,5 @@ require (
 	golang.org/x/text v0.6.0 // indirect
 	golang.org/x/tools v0.4.0 // indirect
 )
+
+replace github.com/mr-karan/doggo => github.com/honwen/doggo v0.0.0-20230203023054-7db5c2144fa4
