@@ -324,11 +324,6 @@ func main() {
 				if err := appInit(c, true); err != nil {
 					return err
 				}
-				// fmt.Println(c.Command.Name, "task: ", accessKey, c.String("domain"), c.Int64("redo"))
-				rr, domain, err := accessKey.AutocheckDomainRR(domain.SplitDomainToRR(c.String("domain")))
-				if err != nil {
-					return err
-				}
 				recordType := "A"
 				if c.GlobalBool("ipv6") {
 					recordType = "AAAA"
@@ -353,10 +348,17 @@ func main() {
 					if len(autoip) == 0 {
 						log.Printf("# Err-CheckAndUpdateRecord: [%s]", "IP is empty, PLZ check network")
 					} else {
-						if err := accessKey.CheckAndUpdateRecord(rr, domain, autoip, recordType, c.Int("ttl")); err != nil {
-							log.Printf("# Err-CheckAndUpdateRecord: [%+v]", err)
-						} else {
-							log.Println(c.String("domain"), autoip, ip2locCN(autoip))
+						ds:=strings.Split(c.String("domain"), ",")
+						for i := 0; i < len(ds); i++ {
+							rr, domain, err := accessKey.AutocheckDomainRR(domain.SplitDomainToRR(ds[i]))
+							if err != nil {
+								return err
+							}
+							if err := accessKey.CheckAndUpdateRecord(rr, domain, autoip, recordType, c.Int("ttl")); err != nil {
+								log.Printf("# Err-CheckAndUpdateRecord: [%+v]", err)
+							} else {
+								log.Println(c.String("domain"), autoip, ip2locCN(autoip))
+							}
 						}
 					}
 					if redoDurtion < 10 {

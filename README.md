@@ -18,7 +18,7 @@ $ docker pull chenhw2/aliyun-ddns-cli
 $ docker run -d \
     -e "AKID=[ALIYUN's AccessKey-ID]" \
     -e "AKSCT=[ALIYUN's AccessKey-Secret]" \
-    -e "DOMAIN=ddns.aliyun.win" \
+    -e "DOMAIN=ddns.aliyun.win,ddns1.aliyun.win" \
     -e "REDO=600" \
     -e "TTL=600" \
     chenhw2/aliyun-ddns-cli
@@ -67,7 +67,7 @@ GLOBAL OPTIONS:
 
 ```shell
 aliddns --id ${AccessKeyID} --secret ${AccessKeySecret} \
-    auto-update --domain ddns.example.win
+    auto-update --domain ddns.example.win,ddns1.aliyun.win
 
 aliddns --id ${AccessKeyID} --secret ${AccessKeySecret} \
     update --domain ddns.example.win \
