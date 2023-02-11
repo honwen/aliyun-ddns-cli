@@ -147,11 +147,7 @@ func (ak *AccessKey) AddRecord(domain, rr, dmType, value string, ttl int) (err e
 
 func (ak *AccessKey) CheckAndUpdateRecord(rr, domain, ipaddr, recordType string, ttl int) (err error) {
 	fulldomain := strings.Join([]string{rr, domain}, `.`)
-	resloved := reslove(fulldomain)
-	if len(resloved) == 0 {
-		return fmt.Errorf("domain[%s] reslove empty, PLZ check network", fulldomain)
-	}
-	if resloved == ipaddr {
+	if reslove(fulldomain) == ipaddr {
 		return // Skip
 	}
 	targetCnt := 0
