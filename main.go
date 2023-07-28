@@ -18,6 +18,7 @@ import (
 	dns "github.com/honwen/aliyun-ddns-cli/alidns"
 	"github.com/honwen/golibs/cip"
 	"github.com/honwen/golibs/domain"
+	"github.com/honwen/ip2loc"
 	"github.com/urfave/cli"
 )
 
@@ -295,7 +296,7 @@ func main() {
 				if err := accessKey.CheckAndUpdateRecord(rr, domain, c.String("ipaddr"), recordType, c.Int("ttl")); err != nil {
 					log.Printf("%+v", err)
 				} else {
-					log.Println(c.String("domain"), c.String("ipaddr"), ip2locCN(c.String("ipaddr")))
+					log.Println(c.String("domain"), c.String("ipaddr"), ip2loc.IP2locCHS(c.String("ipaddr")))
 				}
 				return nil
 			},
@@ -356,7 +357,7 @@ func main() {
 						if err := accessKey.CheckAndUpdateRecord(rr, domain, autoip, recordType, c.Int("ttl")); err != nil {
 							log.Printf("# Err-CheckAndUpdateRecord: [%+v]", err)
 						} else {
-							log.Println(c.String("domain"), autoip, ip2locCN(autoip))
+							log.Println(c.String("domain"), autoip, ip2loc.IP2locCHS(autoip))
 						}
 					}
 					if redoDurtion < 10 {
@@ -381,7 +382,7 @@ func main() {
 				}
 				// fmt.Println(c.Command.Name, "task: ", c.Command.Usage)
 				ip := myip()
-				fmt.Println(ip, ip2locCN(ip))
+				fmt.Println(ip, ip2loc.IP2locCHS(ip))
 				return nil
 			},
 		},
@@ -402,7 +403,7 @@ func main() {
 				}
 				// fmt.Println(c.Command.Name, "task: ", c.Command.Usage)
 				ip := reslove(c.String("domain"))
-				fmt.Println(ip, ip2locCN(ip))
+				fmt.Println(ip, ip2loc.IP2locCHS(ip))
 				return nil
 			},
 		},

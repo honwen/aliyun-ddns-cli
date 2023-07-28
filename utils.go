@@ -2,13 +2,9 @@ package main
 
 import (
 	"errors"
-	"fmt"
-	"log"
 	"reflect"
-	"strings"
 
 	"github.com/honwen/golibs/cip"
-	"github.com/honwen/ip2loc"
 )
 
 var funcs = map[string]interface{}{
@@ -23,24 +19,6 @@ func contains(slice []string, item string) bool {
 	}
 	_, ok := set[item]
 	return ok
-}
-
-func ip2locCN(ip string) (str string) {
-	if strings.Count(ip, `.`) < 3 {
-		return
-	}
-	if loc, err := ip2loc.IP2loc(ip); err != nil {
-		log.Printf("%+v", err)
-	} else {
-		str = fmt.Sprintf("[%s %s %s %s]", loc.CountryName, loc.RegionName, loc.CityName, loc.IspDomain)
-		for strings.Contains(str, " ]") {
-			str = strings.ReplaceAll(str, " ]", "]")
-		}
-		for strings.Contains(str, "  ") {
-			str = strings.ReplaceAll(str, "  ", " ")
-		}
-	}
-	return
 }
 
 func Call(m map[string]interface{}, name string, params ...interface{}) (result []reflect.Value, err error) {
