@@ -2,8 +2,7 @@ package dns
 
 import "encoding/json"
 
-//
-//you can read doc at https://docs.aliyun.com/#/pub/dns/api-reference/enum-type&record-format
+// you can read doc at https://docs.aliyun.com/#/pub/dns/api-reference/enum-type&record-format
 const (
 	ARecord           = "A"
 	NSRecord          = "NS"

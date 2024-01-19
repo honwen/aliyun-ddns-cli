@@ -22,6 +22,8 @@ import (
 	"github.com/urfave/cli"
 )
 
+const RR_AT = `@`
+
 // AccessKey from https://ak-console.aliyun.com/#/accesskey
 type AccessKey struct {
 	ID             string
@@ -59,6 +61,17 @@ func (ak *AccessKey) ListManagedDomains() (domains []string, err error) {
 		domains[i] = v.DomainName
 	}
 	return
+}
+
+func (ak *AccessKey) SplitDomainToRR(fulldomain string) (r, d string) {
+	if r, d, err := accessKey.AutocheckDomainRR("", fulldomain); err == nil {
+		if len(r) == 0 {
+			r = RR_AT
+		}
+		return r, d
+	} else {
+		return domain.SplitDomainToRR(fulldomain)
+	}
 }
 
 func (ak *AccessKey) AutocheckDomainRR(rr, domain string) (r, d string, err error) {
@@ -189,8 +202,12 @@ var (
 	VersionString = "MISSING build version [git hash]"
 )
 
-func init() {
-	rand.Seed(time.Now().UnixNano())
+func joinDomain(rr, domain string) string {
+	if rr == RR_AT {
+		return domain
+	} else {
+		return rr + `.` + domain
+	}
 }
 
 func main() {
@@ -228,7 +245,7 @@ func main() {
 					fmt.Printf("%+v", err)
 				} else {
 					for _, v := range dnsRecords {
-						fmt.Printf("%20s   %-16s %s\n", v.RR+`.`+v.DomainName, fmt.Sprintf("%s(TTL:%4s)", v.Type, v.TTL), v.Value)
+						fmt.Printf("%20s   %-16s %s\n", joinDomain(v.RR, v.DomainName), fmt.Sprintf("%s(TTL:%4s)", v.Type, v.TTL), v.Value)
 					}
 				}
 				return nil
@@ -249,7 +266,7 @@ func main() {
 					return err
 				}
 				// fmt.Println(c.Command.Name, "task: ", accessKey, c.String("domain"))
-				rr, domain, err := accessKey.AutocheckDomainRR(domain.SplitDomainToRR(c.String("domain")))
+				rr, domain, err := accessKey.AutocheckDomainRR(accessKey.SplitDomainToRR(c.String("domain")))
 				if err != nil {
 					return err
 				}
@@ -285,7 +302,7 @@ func main() {
 					return err
 				}
 				// fmt.Println(c.Command.Name, "task: ", accessKey, c.String("domain"), c.String("ipaddr"))
-				rr, domain, err := accessKey.AutocheckDomainRR(domain.SplitDomainToRR(c.String("domain")))
+				rr, domain, err := accessKey.AutocheckDomainRR(accessKey.SplitDomainToRR(c.String("domain")))
 				if err != nil {
 					return err
 				}
@@ -326,7 +343,7 @@ func main() {
 					return err
 				}
 				// fmt.Println(c.Command.Name, "task: ", accessKey, c.String("domain"), c.Int64("redo"))
-				rr, domain, err := accessKey.AutocheckDomainRR(domain.SplitDomainToRR(c.String("domain")))
+				rr, domain, err := accessKey.AutocheckDomainRR(accessKey.SplitDomainToRR(c.String("domain")))
 				if err != nil {
 					return err
 				}
