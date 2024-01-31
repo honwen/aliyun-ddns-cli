@@ -5,7 +5,7 @@ import "github.com/denverdino/aliyungo/common"
 type DescribeSubDomainRecordsArgs struct {
 	SubDomain string
 
-	//optional
+	// optional
 	PageNumber int32
 	PageSize   int32
 	Type       string

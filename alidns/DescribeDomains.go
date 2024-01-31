@@ -28,7 +28,6 @@ func (client *Client) DescribeDomains(args *DescribeDomainsArgs) (domains []Doma
 	action := "DescribeDomains"
 	response := &DescribeDomainsResponse{}
 	err = client.Invoke(action, args, response)
-
 	if err != nil {
 		log.Printf("%s error, %v", action, err)
 		return nil, err

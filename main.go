@@ -15,11 +15,12 @@ import (
 	"time"
 
 	"github.com/denverdino/aliyungo/common"
-	dns "github.com/honwen/aliyun-ddns-cli/alidns"
 	"github.com/honwen/golibs/cip"
 	"github.com/honwen/golibs/domain"
 	"github.com/honwen/ip2loc"
 	"github.com/urfave/cli"
+
+	dns "github.com/honwen/aliyun-ddns-cli/alidns"
 )
 
 const RR_AT = `@`

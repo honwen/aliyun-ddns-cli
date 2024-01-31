@@ -12,7 +12,7 @@ type DomainGroupType struct {
 }
 
 type DescribeDomainGroupsArgs struct {
-	//optional
+	// optional
 	common.Pagination
 	KeyWord string
 }
@@ -32,7 +32,6 @@ func (client *Client) DescribeDomainGroups(args *DescribeDomainGroupsArgs) (grou
 	action := "DescribeDomainGroups"
 	response := &DescribeDomainGroupsResponse{}
 	err = client.Invoke(action, args, response)
-
 	if err != nil {
 		log.Printf("%s error, %v", action, err)
 		return nil, err

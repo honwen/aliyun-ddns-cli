@@ -6,7 +6,7 @@ type DeleteSubDomainRecordsArgs struct {
 	DomainName string
 	RR         string
 
-	//optional
+	// optional
 	Type string
 }
 

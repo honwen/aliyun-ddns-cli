@@ -5,7 +5,7 @@ import "github.com/denverdino/aliyungo/common"
 type DescribeDomainRecordsNewArgs struct {
 	DomainName string
 
-	//optional
+	// optional
 	common.Pagination
 	RRKeyWord    string
 	TypeKeyWord  string

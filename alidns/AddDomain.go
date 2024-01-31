@@ -9,7 +9,7 @@ import (
 type AddDomainArgs struct {
 	DomainName string
 
-	//optional
+	// optional
 	GroupId string
 }
 

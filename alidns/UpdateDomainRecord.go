@@ -12,7 +12,7 @@ type UpdateDomainRecordArgs struct {
 	Type     string
 	Value    string
 
-	//optional
+	// optional
 	TTL      json.Number
 	Priority json.Number
 	Line     string

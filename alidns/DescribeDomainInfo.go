@@ -36,7 +36,6 @@ func (client *Client) DescribeDomainInfo(args *DescribeDomainInfoArgs) (domain D
 	action := "DescribeDomainInfo"
 	response := &DescribeDomainInfoResponse{}
 	err = client.Invoke(action, args, response)
-
 	if err != nil {
 		log.Printf("%s error, %v", action, err)
 		return DomainType{}, err
