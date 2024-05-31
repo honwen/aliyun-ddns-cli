@@ -39,7 +39,9 @@ func Call(m map[string]interface{}, name string, params ...interface{}) (result 
 func myip() (ip string) {
 	if result, err := Call(funcs, "myip"); err == nil {
 		for _, r := range result {
-			return r.String()
+			if ip := r.String(); ip != "127.0.0.1" {
+				return ip
+			}
 		}
 	}
 	return
@@ -48,7 +50,9 @@ func myip() (ip string) {
 func reslove(domain string) (ip string) {
 	if result, err := Call(funcs, "reslove", domain); err == nil {
 		for _, r := range result {
-			return r.String()
+			if ip := r.String(); ip != "127.0.0.1" {
+				return ip
+			}
 		}
 	}
 	return
