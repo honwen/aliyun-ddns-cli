@@ -5,14 +5,14 @@ go 1.22.4
 require (
 	// locked before tracing/logging https://github.com/denverdino/aliyungo/commits/master/go.mod
 	github.com/denverdino/aliyungo v0.0.0-20230411124812-ab98a9173ace
-	github.com/honwen/golibs v0.5.5
-	github.com/honwen/ip2loc v0.4.2
+	github.com/honwen/golibs v0.6.0
+	github.com/honwen/ip2loc v0.4.3
 	github.com/urfave/cli v1.22.15
 	github.com/ysmood/got v0.40.0
 )
 
 require (
-	github.com/AdguardTeam/golibs v0.24.0 // indirect
+	github.com/AdguardTeam/golibs v0.24.1 // indirect
 	github.com/PuerkitoBio/goquery v1.9.2 // indirect
 	github.com/Workiva/go-datastructures v1.1.5 // indirect
 	github.com/aead/chacha20 v0.0.0-20180709150244-8b13a72661da // indirect

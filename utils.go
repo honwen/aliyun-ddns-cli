@@ -65,7 +65,7 @@ func myip() (ip string) {
 		for _, r := range result {
 			ip = r.String()
 			for _, it := range ipBlacklist {
-				ok, _ := containsCIDRString(it, ip)
+				ok, _ := containsCIDRString(it, ip+`/32`)
 				if ok {
 					ip = ""
 					break

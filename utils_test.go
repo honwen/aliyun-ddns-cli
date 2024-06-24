@@ -9,6 +9,15 @@ import (
 	"github.com/ysmood/got"
 )
 
+func TestContainsCIDRString(t *testing.T) {
+	_, err := containsCIDRString("127.0.0.0/8", "128.0.0.1")
+	got.T(t).NotNil(err)
+	is, _ := containsCIDRString("127.0.0.0/8", "128.0.0.1/32")
+	got.T(t).False(is)
+	is, _ = containsCIDRString("127.0.0.0/8", "127.0.0.99/32")
+	got.T(t).True(is)
+}
+
 func TestGetIPv4(t *testing.T) {
 	funcs["myip"] = cip.MyIPv4
 	ip4 := myip()
