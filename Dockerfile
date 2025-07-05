@@ -1,5 +1,5 @@
 FROM chenhw2/alpine:base
-LABEL MAINTAINER honwen <https://github.com/honwen>
+LABEL MAINTAINER="honwen <https://github.com/honwen>"
 
 # /usr/bin/aliyun-ddns-cli
 RUN mkdir -p /usr/bin/ \
@@ -18,10 +18,4 @@ ENV AKID=1234567890 \
     REDO=555r \
     TTL=600
 
-CMD aliyun-ddns-cli \
-    --ipapi ${IPAPI} \
-    ${IPV6:+-6} \
-    auto-update \
-    --domain ${DOMAIN} \
-    --redo ${REDO} \
-    --ttl ${TTL}
+CMD ["/bin/sh", "-cx", "aliyun-ddns-cli --ipapi ${IPAPI} ${IPV6:+-6} auto-update --domain ${DOMAIN} --redo ${REDO} --ttl ${TTL}"]
