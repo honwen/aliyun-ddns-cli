@@ -71,6 +71,9 @@ func myip() (ip string) {
 					break
 				}
 			}
+			if len(ip) == 0 {
+				continue
+			}
 		}
 	}
 	return
