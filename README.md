@@ -24,6 +24,28 @@ $ docker run -d \
     chenhw2/aliyun-ddns-cli
 ```
 
+### Docker Build
+
+Pre-requirements:
+
+- Docker with BuildKit (default since Docker 23.0). The `Dockerfile` relies on the automatic `TARGETARCH` build-arg, which legacy builders do not provide.
+- For cross-architecture builds only (e.g. building `linux/arm64` on an `amd64` host): QEMU binfmt handlers
+
+```shell
+$ docker run --privileged --rm tonistiigi/binfmt --install arm64   # one-time setup, per boot
+```
+
+```shell
+# native arch
+$ docker build -t aliddns .
+
+# cross arch
+$ docker buildx build --platform linux/arm64 -t aliddns --load .
+
+# multi-arch manifest (requires pushing to a registry)
+$ docker buildx build --platform linux/amd64,linux/arm64 -t [REGISTRY/]aliddns --push .
+```
+
 ### Example (for Synology)
 
 - https://github.com/honwen/aliyun-ddns-cli/tree/master/example
