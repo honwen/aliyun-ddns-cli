@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -18,7 +19,7 @@ import (
 	"github.com/honwen/golibs/cip"
 	"github.com/honwen/golibs/domain"
 	"github.com/honwen/ip2loc"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v3"
 
 	dns "github.com/honwen/aliyun-ddns-cli/alidns"
 )
@@ -218,22 +219,23 @@ func main() {
 		}
 	}()
 
-	app := cli.NewApp()
+	app := &cli.Command{}
 	app.Name = "aliddns"
 	app.Usage = "aliyun-ddns-cli"
 	app.Version = fmt.Sprintf("Git:[%s] (%s)", strings.ToUpper(VersionString), runtime.Version())
-	app.Commands = []cli.Command{
+	app.Commands = []*cli.Command{
 		{
 			Name:     "list",
 			Category: "DDNS",
 			Usage:    "List AliYun's DNS DomainRecords Record",
 			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:  "domain, d",
-					Usage: "Specific `DomainName`. like aliyun.com",
+				&cli.StringFlag{
+					Name:    "domain",
+					Aliases: []string{"d"},
+					Usage:   "Specific `DomainName`. like aliyun.com",
 				},
 			},
-			Action: func(c *cli.Context) error {
+			Action: func(ctx context.Context, c *cli.Command) error {
 				if err := appInit(c, true); err != nil {
 					return err
 				}
@@ -257,12 +259,13 @@ func main() {
 			Category: "DDNS",
 			Usage:    "Delete AliYun's DNS DomainRecords Record",
 			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:  "domain, d",
-					Usage: "Specific `FullDomainName`. like ddns.aliyun.com",
+				&cli.StringFlag{
+					Name:    "domain",
+					Aliases: []string{"d"},
+					Usage:   "Specific `FullDomainName`. like ddns.aliyun.com",
 				},
 			},
-			Action: func(c *cli.Context) error {
+			Action: func(ctx context.Context, c *cli.Command) error {
 				if err := appInit(c, true); err != nil {
 					return err
 				}
@@ -284,21 +287,24 @@ func main() {
 			Category: "DDNS",
 			Usage:    "Update AliYun's DNS DomainRecords Record, Create Record if not exist",
 			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:  "domain, d",
-					Usage: "Specific `DomainName`. like ddns.aliyun.com",
+				&cli.StringFlag{
+					Name:    "domain",
+					Aliases: []string{"d"},
+					Usage:   "Specific `DomainName`. like ddns.aliyun.com",
 				},
-				cli.StringFlag{
-					Name:  "ipaddr, i",
-					Usage: "Specific `IP`. like 1.2.3.4",
+				&cli.StringFlag{
+					Name:    "ipaddr",
+					Aliases: []string{"i"},
+					Usage:   "Specific `IP`. like 1.2.3.4",
 				},
-				cli.IntFlag{
-					Name:  "ttl, t",
-					Value: 600,
-					Usage: "The resolution effective time (in `seconds`)",
+				&cli.IntFlag{
+					Name:    "ttl",
+					Aliases: []string{"t"},
+					Value:   600,
+					Usage:   "The resolution effective time (in `seconds`)",
 				},
 			},
-			Action: func(c *cli.Context) error {
+			Action: func(ctx context.Context, c *cli.Command) error {
 				if err := appInit(c, true); err != nil {
 					return err
 				}
@@ -308,7 +314,7 @@ func main() {
 					return err
 				}
 				recordType := "A"
-				if c.GlobalBool("ipv6") {
+				if c.Bool("ipv6") {
 					recordType = "AAAA"
 				}
 				if err := accessKey.CheckAndUpdateRecord(rr, domain, c.String("ipaddr"), recordType, c.Int("ttl")); err != nil {
@@ -324,22 +330,25 @@ func main() {
 			Category: "DDNS",
 			Usage:    "Auto-Update AliYun's DNS DomainRecords Record, Get IP using its getip",
 			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:  "domain, d",
-					Usage: "Specific `DomainName`. like ddns.aliyun.com",
+				&cli.StringFlag{
+					Name:    "domain",
+					Aliases: []string{"d"},
+					Usage:   "Specific `DomainName`. like ddns.aliyun.com",
 				},
-				cli.StringFlag{
-					Name:  "redo, r",
-					Value: "",
-					Usage: "redo Auto-Update, every N `Seconds`; Disable if N less than 10; End with [Rr] enable random delay: [N, 2N]",
+				&cli.StringFlag{
+					Name:    "redo",
+					Aliases: []string{"r"},
+					Value:   "",
+					Usage:   "redo Auto-Update, every N `Seconds`; Disable if N less than 10; End with [Rr] enable random delay: [N, 2N]",
 				},
-				cli.IntFlag{
-					Name:  "ttl, t",
-					Value: 600,
-					Usage: "The resolution effective time (in `seconds`)",
+				&cli.IntFlag{
+					Name:    "ttl",
+					Aliases: []string{"t"},
+					Value:   600,
+					Usage:   "The resolution effective time (in `seconds`)",
 				},
 			},
-			Action: func(c *cli.Context) error {
+			Action: func(ctx context.Context, c *cli.Command) error {
 				if err := appInit(c, true); err != nil {
 					return err
 				}
@@ -349,7 +358,7 @@ func main() {
 					return err
 				}
 				recordType := "A"
-				if c.GlobalBool("ipv6") {
+				if c.Bool("ipv6") {
 					recordType = "AAAA"
 				}
 				redoDurtionStr := c.String("redo")
@@ -365,7 +374,7 @@ func main() {
 				}
 				// Print Version if exist
 				if redoDurtion > 0 && !strings.HasPrefix(VersionString, "MISSING") {
-					fmt.Fprintf(os.Stderr, "%s %s\n", strings.ToUpper(c.App.Name), c.App.Version)
+					fmt.Fprintf(os.Stderr, "%s %s\n", strings.ToUpper(c.Root().Name), c.Root().Version)
 				}
 				for {
 					autoip := myip()
@@ -394,7 +403,7 @@ func main() {
 			Name:     "getip",
 			Category: "GET-IP",
 			Usage:    "      Get IP Combine 10+ different Web-API",
-			Action: func(c *cli.Context) error {
+			Action: func(ctx context.Context, c *cli.Command) error {
 				if err := appInit(c, false); err != nil {
 					return err
 				}
@@ -409,13 +418,14 @@ func main() {
 			Category: "GET-IP",
 			Usage:    "      Get DNS-IPv4 Combine 4+ DNS Upstream",
 			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:     "domain, d",
+				&cli.StringFlag{
+					Name:     "domain",
+					Aliases:  []string{"d"},
 					Required: true,
 					Usage:    "Specific `DomainName`. like ddns.aliyun.com",
 				},
 			},
-			Action: func(c *cli.Context) error {
+			Action: func(ctx context.Context, c *cli.Command) error {
 				if err := appInit(c, false); err != nil {
 					return err
 				}
@@ -427,32 +437,50 @@ func main() {
 		},
 	}
 	app.Flags = []cli.Flag{
-		cli.StringFlag{
-			Name:  "access-key-id, id",
-			Usage: "AliYun's Access Key ID",
+		&cli.StringFlag{
+			Name:    "access-key-id",
+			Aliases: []string{"id"},
+			Usage:   "AliYun's Access Key ID",
 		},
-		cli.StringFlag{
-			Name:  "access-key-secret, secret",
-			Usage: "AliYun's Access Key Secret",
+		&cli.StringFlag{
+			Name:    "access-key-secret",
+			Aliases: []string{"secret"},
+			Usage:   "AliYun's Access Key Secret",
 		},
-		cli.StringSliceFlag{
-			Name:  "ipapi, api",
-			Usage: "Web-API to Get IP, like: http://v6r.ipip.net",
+		&cli.StringSliceFlag{
+			Name:    "ipapi",
+			Aliases: []string{"api"},
+			Usage:   "Web-API to Get IP, like: http://v6r.ipip.net",
 		},
-		cli.BoolFlag{
-			Name:  "ipv6, 6",
-			Usage: "IPv6",
+		&cli.BoolFlag{
+			// the "6" alias only works through the `-6` rewrite below: cli/v3
+			// parses a single-dash token as a flag only when it starts with a
+			// letter, so it is kept here to advertise `-6` in the help output
+			Name:    "ipv6",
+			Aliases: []string{"6"},
+			Usage:   "IPv6",
 		},
 	}
-	app.Action = func(c *cli.Context) error {
+	app.Action = func(ctx context.Context, c *cli.Command) error {
 		return appInit(c, true)
 	}
-	app.Run(os.Args)
+	// cli/v3 rejects short flags whose name does not start with a letter: it
+	// treats such a token as a positional argument and stops parsing flags, so
+	// the legacy `-6` shorthand silently stops working. Rewrite it up front to
+	// keep `-6` and the Dockerfile's ${IPV6:+-6} working.
+	for i, arg := range os.Args {
+		if arg == `-6` {
+			os.Args[i] = `--ipv6`
+		}
+	}
+	if err := app.Run(context.Background(), os.Args); err != nil {
+		cli.HandleExitCoder(err)
+	}
 }
 
-func appInit(c *cli.Context, checkAccessKey bool) error {
-	akids := []string{c.GlobalString("access-key-id"), os.Getenv("AKID"), os.Getenv("AccessKeyID")}
-	akscts := []string{c.GlobalString("access-key-secret"), os.Getenv("AKSCT"), os.Getenv("AccessKeySecret")}
+func appInit(c *cli.Command, checkAccessKey bool) error {
+	akids := []string{c.String("access-key-id"), os.Getenv("AKID"), os.Getenv("AccessKeyID")}
+	akscts := []string{c.String("access-key-secret"), os.Getenv("AKSCT"), os.Getenv("AccessKeySecret")}
 	sort.Sort(sort.Reverse(sort.StringSlice(akids)))
 	sort.Sort(sort.Reverse(sort.StringSlice(akscts)))
 	accessKey.ID = akids[0]
@@ -471,13 +499,13 @@ func appInit(c *cli.Context, checkAccessKey bool) error {
 		}
 	}
 
-	if c.GlobalBool("ipv6") {
+	if c.Bool("ipv6") {
 		funcs["myip"] = cip.MyIPv6
 		funcs["reslove"] = cip.ResloveIPv6
 	}
 
 	ipapi := []string{}
-	for _, api := range c.GlobalStringSlice("ipapi") {
+	for _, api := range c.StringSlice("ipapi") {
 		if !regexp.MustCompile(`^https?://.*`).MatchString(api) {
 			api = "http://" + api
 		}
@@ -487,7 +515,7 @@ func appInit(c *cli.Context, checkAccessKey bool) error {
 	}
 	if len(ipapi) > 0 {
 		regx := regexp.MustCompile(cip.RegxIPv4)
-		if c.GlobalBoolT("ipv6") {
+		if c.Bool("ipv6") {
 			regx = regexp.MustCompile(cip.RegxIPv6)
 		}
 		funcs["myip"] = func() string {

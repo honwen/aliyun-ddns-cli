@@ -58,10 +58,10 @@ NAME:
    aliddns - aliyun-ddns-cli
 
 USAGE:
-   aliyun-ddns-cli [global options] command [command options] [arguments...]
+   aliddns [global options] [command [command options]]
 
 VERSION:
-   Git:[MISSING BUILD VERSION [GIT HASH]] (go1.21)
+   Git:[MISSING BUILD VERSION [GIT HASH]] (go1.26.6)
 
 COMMANDS:
    help, h  Shows a list of commands or help for one command
@@ -77,12 +77,12 @@ COMMANDS:
      resolve        Get DNS-IPv4 Combine 4+ DNS Upstream
 
 GLOBAL OPTIONS:
-   --access-key-id value, --id value          AliYun's Access Key ID
-   --access-key-secret value, --secret value  AliYun's Access Key Secret
-   --ipapi value, --api value                 Web-API to Get IP, like: http://v6r.ipip.net
-   --ipv6, -6                                 IPv6
-   --help, -h                                 show help
-   --version, -v                              print the version
+   --access-key-id string, --id string                            AliYun's Access Key ID
+   --access-key-secret string, --secret string                    AliYun's Access Key Secret
+   --ipapi string, --api string [ --ipapi string, --api string ]  Web-API to Get IP, like: http://v6r.ipip.net
+   --ipv6, -6                                                     IPv6
+   --help, -h                                                     show help
+   --version, -v                                                  print the version
 ```
 
 ### CLI Example:
